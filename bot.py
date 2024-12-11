@@ -1,11 +1,15 @@
 import os
 import shutil
+from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, CallbackContext
 from utils.instagram import scrape_instagram_post
 from utils.audio_processing import download_video, extract_audio
 from utils.acrcloud_handler import recognize_song
 from utils.downloader import download_and_convert_song
+
+# Load environment variables from .env file
+load_dotenv() 
 
 # Function to delete all files in the 'data/downloads' folder
 def delete_files_in_downloads():
@@ -47,9 +51,9 @@ async def handle_message(update: Update, context):
                 await downloading_message.edit_text("Audio extracted successfully! Recognizing song...")
 
                 # Song recognition
-                acr_host = "https://identify-ap-southeast-1.acrcloud.com"
-                acr_access_key = "5ecba6932829064922d9959931839b14"
-                acr_access_secret = "A8mVX6LNivrhuDwu9n0iER2xq7sZ5RZFIFlg1lO5"
+                acr_host = os.getenv("ACR_HOST")
+                acr_access_key = os.getenv("ACR_ACCESS_KEY")
+                acr_access_secret = os.getenv("ACR_ACCESS_SECRET")
                 # Send the song's MP3 file (extracted audio) with song details
                 song_info = recognize_song(audio_path, acr_host, acr_access_key, acr_access_secret)
 
@@ -109,7 +113,8 @@ async def handle_message(update: Update, context):
 
 
 def main():
-    BOT_TOKEN = "8122146498:AAGyAp7DHZDR4LPKt4XtHcvK4_xLJn97ZGI"
+    # Telegram Bot Token
+    BOT_TOKEN = os.getenv("BOT_TOKEN")
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     application.add_handler(CommandHandler("start", start))
