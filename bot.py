@@ -1,8 +1,25 @@
+import os
+import shutil
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, CallbackContext
 from utils.instagram import scrape_instagram_post
 from utils.audio_processing import download_video, extract_audio
 from utils.acrcloud_handler import recognize_song
+from utils.downloader import download_and_convert_song
+
+# Function to delete all files in the 'data/downloads' folder
+def delete_files_in_downloads():
+    downloads_folder = 'data/downloads'
+    for filename in os.listdir(downloads_folder):
+        file_path = os.path.join(downloads_folder, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.remove(file_path)  # Delete the file
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)  # Delete the directory
+        except Exception as e:
+            print(f"Error deleting file {file_path}: {e}")
+
 
 async def start(update: Update, context):
     await update.message.reply_text(
@@ -19,15 +36,15 @@ async def handle_message(update: Update, context):
     caption, video_url = scrape_instagram_post(url)
 
     if caption and video_url:
-        await update.message.reply_text("Downloading video...")
+        downloading_message = await update.message.reply_text("Downloading video...")
 
         video_path = download_video(video_url)
         if video_path:
-            await update.message.reply_text("Video downloaded! Extracting audio...")
+            await downloading_message.edit_text("Video downloaded! Extracting audio...")
 
             audio_path = extract_audio(video_path)
             if audio_path:
-                await update.message.reply_text("Audio extracted successfully! Recognizing song...")
+                await downloading_message.edit_text("Audio extracted successfully! Recognizing song...")
 
                 # Song recognition
                 acr_host = "https://identify-ap-southeast-1.acrcloud.com"
@@ -44,19 +61,22 @@ async def handle_message(update: Update, context):
                     album = song.get('album', {}).get('name', 'Unknown Album')
                     genres = ', '.join(genre['name'] for genre in song.get('genres', []))
                     release_date = song.get('release_date', 'Unknown Release Date')
-                    youtube_link = song.get('external_metadata', {}).get('youtube', {}).get('vid', '')
+
+                    # youtube_link and spotify_link
+                    youtube_track_id = song.get('external_metadata', {}).get('youtube', {}).get('vid', '')
+                    youtube_link = f"https://www.youtube.com/watch?v={youtube_track_id}" if youtube_track_id else f"https://www.youtube.com/results?search_query={title}"
+
                     spotify_track_id = song.get('external_metadata', {}).get('spotify', {}).get('track', {}).get('id', '')
-                    
-                    if spotify_track_id:
-                        spotify_link = f"https://open.spotify.com/track/{spotify_track_id}"
-                    else:
-                        spotify_link = f"https://open.spotify.com/search/{title}"
+                    spotify_link = f"https://open.spotify.com/track/{spotify_track_id}" if spotify_track_id else f"https://open.spotify.com/search/{title}"
+
+                    # Call the download_song function to get the song file path
+                    song_path = download_and_convert_song(title, artists)
 
 
                     # Create the inline keyboard for YouTube and Spotify links
                     keyboard = [
                         [
-                            InlineKeyboardButton("YouTube", url=f"https://www.youtube.com/watch?v={youtube_link}"),
+                            InlineKeyboardButton("YouTube", url=youtube_link),
                             InlineKeyboardButton("Spotify", url=spotify_link)
                         ]
                     ]
@@ -72,7 +92,12 @@ async def handle_message(update: Update, context):
 
                     # Reply with video, audio, and song info
                     await update.message.reply_video(video=open(video_path, "rb"), caption=caption)
-                    await update.message.reply_audio(audio=open(audio_path, "rb"), caption=response_message, reply_markup=reply_markup, parse_mode="Markdown")
+                    await downloading_message.delete()
+                    await update.message.reply_audio(audio=open(song_path, "rb"), caption=response_message, reply_markup=reply_markup, parse_mode="Markdown")
+
+                    # Delete all files in the 'data/downloads' folder after sending the files
+                    delete_files_in_downloads()
+
                 else:
                     await update.message.reply_text("Sorry, I couldn't recognize the song.")
             else:
