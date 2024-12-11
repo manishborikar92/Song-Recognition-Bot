@@ -1,8 +1,7 @@
+python-telegram-bot
 requests
 ffmpeg-python
 yt-dlp
 instaloader
-python-telegram-bot
 python-dotenv
 flask
-ffmpeg
