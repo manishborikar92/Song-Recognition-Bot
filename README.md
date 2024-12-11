@@ -16,7 +16,7 @@ A Telegram bot that helps you identify songs from Instagram reels by analyzing a
 ## 🛠️ Project Structure
 
 ```plaintext
-telegram_instagram_music_bot/
+Song-Recognition-Bot/
 │
 ├── bot.py                   # Main entry point for the bot
 ├── config.py                # Configuration settings (API keys, tokens, etc.)
@@ -84,21 +84,6 @@ Run the unit tests to ensure the components work as expected:
 python -m unittest discover
 ```
 
----
-
-## 🔧 Key Functions
-
-### 1. `download_reel.py`
-Downloads Instagram reels from a provided URL.
-
-### 2. `extract_audio.py`
-Extracts audio from a video file using FFmpeg.
-
-### 3. `song_recognition.py`
-Recognizes songs using the ACRCloud API.
-
----
-
 ## 📖 Usage Instructions
 
 1. Start the bot on Telegram by sending `/start`.
@@ -112,7 +97,7 @@ Recognizes songs using the ACRCloud API.
 
 ## 🛡️ License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [GNU GENERAL PUBLIC LICENSE](LICENSE).
 
 ---
 
