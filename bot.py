@@ -18,7 +18,7 @@ GROUP_ID = os.getenv("GROUP_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 # Rate limit settings
-USER_RATE_LIMIT = 60  # Allow 1 request per minute per user
+USER_RATE_LIMIT = 10  # Allow 1 request per minute per user
 last_request_time = {}
 
 async def start(update: Update, context):
