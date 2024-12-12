@@ -59,21 +59,20 @@ async def handle_message(update: Update, context: CallbackContext):
     if chat_type in ["group", "supergroup", "channel"]:
         return
 
-    # Skip rate-limiting for your user ID
-    if user_id == EXCEPTION_USER_ID:
-        # Bypass rate-limiting for this user
-        last_request_time[user_id] = time.time()  # Optionally update their last request time
-        # Proceed with handling the request (e.g., do nothing to skip rate-limiting logic)
-        pass
+    # Check if the user is the exception user
+    if int(user_id) == int(EXCEPTION_USER_ID):
+        print('Admin')  # Log admin behavior
     else:
-        # Handle rate-limiting per user
+        # Rate-limiting logic for other users
         current_time = time.time()
         if user_id in last_request_time and current_time - last_request_time[user_id] < USER_RATE_LIMIT:
             remaining_time = USER_RATE_LIMIT - (current_time - last_request_time[user_id])
             await update.message.reply_text(f"⏳ Please wait {remaining_time:.0f} seconds before making another request.")
             return
+
+        # Update the last request time for the user
+        last_request_time[user_id] = current_time      
         
-        last_request_time[user_id] = current_time # Update last request time after passing the rate limit check
 
     bot_token = context.bot.token
 
