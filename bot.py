@@ -61,7 +61,9 @@ async def handle_message(update: Update, context: CallbackContext):
 
     # Skip rate-limiting for your user ID
     if user_id == EXCEPTION_USER_ID:
-        # Proceed without rate-limiting
+        # Bypass rate-limiting for this user
+        last_request_time[user_id] = time.time()  # Optionally update their last request time
+        # Proceed with handling the request (e.g., do nothing to skip rate-limiting logic)
         pass
     else:
         # Handle rate-limiting per user
@@ -71,7 +73,7 @@ async def handle_message(update: Update, context: CallbackContext):
             await update.message.reply_text(f"⏳ Please wait {remaining_time:.0f} seconds before making another request.")
             return
         
-        last_request_time[user_id] = current_time
+        last_request_time[user_id] = current_time # Update last request time after passing the rate limit check
 
     bot_token = context.bot.token
 
