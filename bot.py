@@ -44,11 +44,11 @@ async def check_membership(user_id: int, bot_token: str):
 GROUP_URL = "https://t.me/+b4-OKLiKbMoyODY1"
 CHANNEL_URL = "https://t.me/ProjectON3"
 
-# Function to get the first sentence of the caption
 def get_first_sentence(caption: str) -> str:
-    # Split the caption by periods and return the first sentence
-    sentences = caption.split('.')
-    return sentences[0] + '.' if sentences else caption
+    # Split the caption by line breaks and get the first non-empty line
+    lines = caption.split('\n')
+    first_line = next((line for line in lines if line.strip()), "")  # Find the first non-empty line
+    return first_line
 
 async def handle_message(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
