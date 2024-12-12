@@ -18,7 +18,7 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")  # Replace with your channel ID
 
 async def start(update: Update, context):
     await update.message.reply_text(
-        "Hi! I’m your music bot. Send me an Instagram reel or post link, and I'll process it for you!"
+        "Hi! I’m your music bot. Send me an Instagram reel link, and I'll process it for you!"
     )
 
 async def check_membership(user_id: int, bot_token: str):
@@ -32,46 +32,57 @@ async def check_membership(user_id: int, bot_token: str):
 
     return is_member_of_group and is_member_of_channel
 
+GROUP_URL = "https://t.me/+b4-OKLiKbMoyODY1"
+CHANNEL_URL = "https://t.me/ProjectON3"
+
 async def handle_message(update: Update, context):
+    chat_type = update.message.chat.type
+
+    # Ignore messages from groups, supergroups, and channels
+    if chat_type in ["group", "supergroup", "channel"]:
+        return
+
     user_id = update.message.from_user.id
     bot_token = context.bot.token
 
-    # Check if the user has joined the group and channel
-    is_member = await check_membership(user_id, bot_token)
+    # Check if the user is a member of the group and channel
+    try:
+        is_member = await check_membership(user_id, bot_token)
+    except Exception as e:
+        # If there's an error during membership check, log it and notify the user
+        print(f"Error checking membership: {e}")
+        await update.message.reply_text("Unable to verify membership at the moment. Please try again later.")
+        return
 
     if not is_member:
-        # Send a message with inline buttons for joining group and channel
+        # Notify the user to join the group and channel
         buttons = [
-            [InlineKeyboardButton("Join Group", url=f"https://t.me/+b4-OKLiKbMoyODY1")],
-            [InlineKeyboardButton("Join Channel", url=f"https://t.me/ProjectON3")]
+            [InlineKeyboardButton("Join Group", url=GROUP_URL)],
+            [InlineKeyboardButton("Join Channel", url=CHANNEL_URL)],
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text(
-            "You must join our group and channel to use this bot. Please join using the buttons below and try again.",
-            reply_markup=reply_markup
+            "🚫 You must join our group and channel to use this bot. Please join using the buttons below and try again.",
+            reply_markup=reply_markup,
         )
         return
 
-    # Proceed with the original process if the user has joined
+    # Proceed with processing the Instagram link
     url = update.message.text
     if "instagram.com" not in url:
-        await update.message.reply_text("Please send a valid Instagram reel or post link.")
+        await update.message.reply_text("❌ Please send a valid Instagram reel or post link.")
         return
 
     caption, video_url = scrape_instagram_post(url)
 
     if caption and video_url:
-        downloading_message = await update.message.reply_text("Downloading video...")
-
+        downloading_message = await update.message.reply_text("⬇️ Downloading video...")
         video_path = download_video(video_url)
         if video_path:
-            await downloading_message.edit_text("Video downloaded! Extracting audio...")
-
+            await downloading_message.edit_text("🎧 Video downloaded! Extracting audio...")
             audio_path = extract_audio(video_path)
             if audio_path:
-                await downloading_message.edit_text("Audio extracted successfully! Recognizing song...")
-
-                # Song recognition
+                await downloading_message.edit_text("🔍 Recognizing song...")
                 acr_host = os.getenv("ACR_HOST")
                 acr_access_key = os.getenv("ACR_ACCESS_KEY")
                 acr_access_secret = os.getenv("ACR_ACCESS_SECRET")
@@ -96,7 +107,7 @@ async def handle_message(update: Update, context):
                     keyboard = [
                         [
                             InlineKeyboardButton("YouTube", url=youtube_link),
-                            InlineKeyboardButton("Spotify", url=spotify_link)
+                            InlineKeyboardButton("Spotify", url=spotify_link),
                         ]
                     ]
                     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -109,19 +120,21 @@ async def handle_message(update: Update, context):
                         f"- Release Date: {release_date}\n"
                     )
 
-                    await update.message.reply_video(video=open(video_path, "rb"), caption=caption)
-                    await downloading_message.delete()
-                    await update.message.reply_audio(audio=open(song_path, "rb"), caption=response_message, reply_markup=reply_markup, parse_mode="Markdown")
+                    with open(video_path, "rb") as video, open(song_path, "rb") as song_file:
+                        await update.message.reply_video(video=video, caption=caption)
+                        await downloading_message.delete()
+                        await update.message.reply_audio(audio=song_file, caption=response_message, reply_markup=reply_markup, parse_mode="Markdown")
 
                     delete_files_in_downloads()
                 else:
-                    await update.message.reply_text("Sorry, I couldn't recognize the song.")
+                    await update.message.reply_text("❌ Sorry, I couldn't recognize the song.")
             else:
-                await update.message.reply_text("Failed to extract audio.")
+                await update.message.reply_text("❌ Failed to extract audio.")
         else:
-            await update.message.reply_text("Failed to download the video.")
+            await update.message.reply_text("❌ Failed to download the video.")
     else:
-        await update.message.reply_text("Failed to fetch the Instagram post. Please try again.")
+        await update.message.reply_text("❌ Failed to fetch the Instagram post. Please try again.")
+
 
 def main():
     BOT_TOKEN = os.getenv("BOT_TOKEN")
