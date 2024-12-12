@@ -44,6 +44,12 @@ async def check_membership(user_id: int, bot_token: str):
 GROUP_URL = "https://t.me/+b4-OKLiKbMoyODY1"
 CHANNEL_URL = "https://t.me/ProjectON3"
 
+# Function to get the first sentence of the caption
+def get_first_sentence(caption: str) -> str:
+    # Split the caption by periods and return the first sentence
+    sentences = caption.split('.')
+    return sentences[0] + '.' if sentences else caption
+
 async def handle_message(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     chat_type = update.message.chat.type
@@ -98,6 +104,9 @@ async def handle_message(update: Update, context: CallbackContext):
         await update.message.reply_text("❌ Failed to fetch the Instagram post content. Please try again.")
         return
 
+    # Get only the first sentence of the caption
+    caption = get_first_sentence(caption)
+
     downloading_message = await update.message.reply_text("⬇️ Downloading video...")
     try:
         video_path = download_video(video_url)
@@ -149,7 +158,7 @@ async def handle_message(update: Update, context: CallbackContext):
         )
 
         with open(video_path, "rb") as video, open(song_path, "rb") as song_file:
-            await update.message.reply_video(video=video, caption=caption)
+            await update.message.reply_video(video=video, caption=caption)  # Only the first sentence of caption
             await downloading_message.delete()
             await update.message.reply_audio(audio=song_file, caption=response_message, reply_markup=reply_markup, parse_mode="Markdown")
 
