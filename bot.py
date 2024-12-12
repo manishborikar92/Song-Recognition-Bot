@@ -16,6 +16,7 @@ load_dotenv()
 # Group and Channel IDs
 GROUP_ID = os.getenv("GROUP_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
+EXCEPTION_USER_ID = os.getenv("EXCEPTION_USER_ID")
 
 # Rate limit settings
 USER_RATE_LIMIT = 60  # Allow 1 request per minute per user
@@ -58,14 +59,19 @@ async def handle_message(update: Update, context: CallbackContext):
     if chat_type in ["group", "supergroup", "channel"]:
         return
 
-    # Handle rate-limiting per user
-    current_time = time.time()
-    if user_id in last_request_time and current_time - last_request_time[user_id] < USER_RATE_LIMIT:
-        remaining_time = USER_RATE_LIMIT - (current_time - last_request_time[user_id])
-        await update.message.reply_text(f"⏳ Please wait {remaining_time:.0f} seconds before making another request.")
-        return
-    
-    last_request_time[user_id] = current_time
+    # Skip rate-limiting for your user ID
+    if user_id == EXCEPTION_USER_ID:
+        # Proceed without rate-limiting
+        pass
+    else:
+        # Handle rate-limiting per user
+        current_time = time.time()
+        if user_id in last_request_time and current_time - last_request_time[user_id] < USER_RATE_LIMIT:
+            remaining_time = USER_RATE_LIMIT - (current_time - last_request_time[user_id])
+            await update.message.reply_text(f"⏳ Please wait {remaining_time:.0f} seconds before making another request.")
+            return
+        
+        last_request_time[user_id] = current_time
 
     bot_token = context.bot.token
 
