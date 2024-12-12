@@ -42,8 +42,8 @@ async def handle_message(update: Update, context):
     if not is_member:
         # Send a message with inline buttons for joining group and channel
         buttons = [
-            [InlineKeyboardButton("Join Group", url=f"https://t.me/TheOdinProjectGroup")],
-            [InlineKeyboardButton("Join Channel", url=f"https://t.me/The0dinProject")]
+            [InlineKeyboardButton("Join Group", url=f"https://t.me/+b4-OKLiKbMoyODY1")],
+            [InlineKeyboardButton("Join Channel", url=f"https://t.me/ProjectON3")]
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text(
