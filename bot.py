@@ -16,8 +16,6 @@ load_dotenv()
 GROUP_ID = os.getenv("GROUP_ID")  # Replace with your group ID
 CHANNEL_ID = os.getenv("CHANNEL_ID")  # Replace with your channel ID
 
-delete_files_in_downloads()
-
 async def start(update: Update, context):
     await update.message.reply_text(
         "Hi! I’m your music bot. Send me an Instagram reel or post link, and I'll process it for you!"
