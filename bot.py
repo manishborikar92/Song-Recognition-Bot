@@ -121,6 +121,11 @@ async def handle_message(update: Update, context: CallbackContext):
             raise Exception("Failed to download video.")
         
         await downloading_message.edit_text("🎧 Video downloaded! Extracting audio...")
+
+        # Send the video while continuing the rest of the process
+        with open(video_path, "rb") as video:
+            await update.message.reply_video(video=video, caption=caption)
+
         audio_path = extract_audio(video_path)
         if not audio_path:
             raise Exception("Failed to extract audio.")
@@ -164,8 +169,7 @@ async def handle_message(update: Update, context: CallbackContext):
             f"- Release Date: {release_date}\n"
         )
 
-        with open(video_path, "rb") as video, open(song_path, "rb") as song_file:
-            await update.message.reply_video(video=video, caption=caption)  # Only the first sentence of caption
+        with open(song_path, "rb") as song_file:
             await downloading_message.delete()
             await update.message.reply_audio(audio=song_file, caption=response_message, reply_markup=reply_markup, parse_mode="Markdown")
 
