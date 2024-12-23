@@ -19,17 +19,17 @@ A Telegram bot that helps you identify songs from Instagram reels by analyzing a
 Song-Recognition-Bot/
 │
 ├── bot.py                   # Main entry point for the bot
-├── config.py                # Configuration settings (API keys, tokens, etc.)
+├── .env                     # Environment variables
 ├── requirements.txt         # List of Python dependencies
 ├── utils/
 │   ├── instagram.py         # Functions to fetch Instagram video and caption
 │   ├── audio_processing.py  # Functions to download and process audio
-│   ├── acrcloud.py          # Functions to interact with ACRCloud API
-│   ├── helpers.py           # Reusable utility functions
+│   ├── acrcloud_handler.py          # Functions to interact with ACRCloud API
+│   ├── downloader.py           # Reusable utility functions
+│   ├── cleardata.py           # Reusable utility functions
 │
 ├── data/
 │   ├── downloads/           # Folder for temporarily storing video and audio files
-│   └── __init__.py          # Makes 'data' a Python package
 │
 └── README.md                # Documentation about the project
 ```
