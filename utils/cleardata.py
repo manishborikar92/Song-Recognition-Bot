@@ -1,15 +1,21 @@
 import os
 import shutil
 
-# Function to delete all files in the 'data/downloads' folder
 def delete_files_in_downloads():
+    """
+    Deletes all files and directories in the 'data/downloads' folder.
+    """
     downloads_folder = 'data/downloads'
-    for filename in os.listdir(downloads_folder):
-        file_path = os.path.join(downloads_folder, filename)
-        try:
-            if os.path.isfile(file_path):
-                os.remove(file_path)  # Delete the file
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)  # Delete the directory
-        except Exception as e:
-            print(f"Error deleting file {file_path}: {e}")
+
+    if not os.path.exists(downloads_folder):
+        print(f"The folder {downloads_folder} does not exist.")
+        return
+
+    try:
+        for entry in os.scandir(downloads_folder):
+            if entry.is_file():
+                os.unlink(entry.path)  # Delete the file
+            elif entry.is_dir():
+                shutil.rmtree(entry.path)  # Delete the directory
+    except Exception as e:
+        print(f"Error cleaning the downloads folder: {e}")

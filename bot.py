@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+import asyncio
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, CallbackContext
@@ -27,13 +28,19 @@ async def start(update: Update, context):
         "Hi! I’m your music bot. Send me an Instagram reel link, and I'll process it for you!"
     )
 
+GROUP_URL = "https://t.me/+b4-OKLiKbMoyODY1"
+CHANNEL_URL = "https://t.me/ProjectON3"
+
 async def check_membership(user_id: int, bot_token: str):
     application = ApplicationBuilder().token(bot_token).build()
     try:
-        # Check group and channel membership
-        group_status = await application.bot.get_chat_member(chat_id=GROUP_ID, user_id=user_id)
-        channel_status = await application.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
+        # Run group and channel checks concurrently
+        group_check = application.bot.get_chat_member(chat_id=GROUP_ID, user_id=user_id)
+        channel_check = application.bot.get_chat_member(chat_id=CHANNEL_ID, user_id=user_id)
+        
+        group_status, channel_status = await asyncio.gather(group_check, channel_check)
 
+        # Check if the user is a member in both group and channel
         is_member_of_group = group_status.status in ["member", "administrator", "creator"]
         is_member_of_channel = channel_status.status in ["member", "administrator", "creator"]
         
@@ -41,9 +48,6 @@ async def check_membership(user_id: int, bot_token: str):
     except Exception as e:
         print(f"Error during membership check: {e}")
         return False  # Assume not a member if an error occurs
-
-GROUP_URL = "https://t.me/+b4-OKLiKbMoyODY1"
-CHANNEL_URL = "https://t.me/ProjectON3"
 
 def get_first_sentence(caption: str) -> str:
     # Split the caption by line breaks and get the first non-empty line
@@ -72,7 +76,6 @@ async def handle_message(update: Update, context: CallbackContext):
 
         # Update the last request time for the user
         last_request_time[user_id] = current_time      
-        
 
     bot_token = context.bot.token
 
@@ -101,7 +104,7 @@ async def handle_message(update: Update, context: CallbackContext):
         return
 
     try:
-        caption, video_url = scrape_instagram_post(url)
+        caption, video_url = await asyncio.to_thread(scrape_instagram_post, url)
     except Exception as e:
         print(f"Error scraping Instagram post: {e}")
         await update.message.reply_text("❌ Failed to fetch the Instagram post. Please try again later.")

@@ -1,76 +1,64 @@
 import os
 import yt_dlp
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 
 def download_and_convert_song(song_title, artist_name):
+    """
+    Download and convert a song to MP3 format.
+    
+    Args:
+        song_title (str): Title of the song.
+        artist_name (str): Name of the artist.
+    
+    Returns:
+        str: Path to the converted MP3 file, or None if an error occurred.
+    """
     # Create the download folder if it doesn't exist
     download_folder = 'data/downloads'
-    if not os.path.exists(download_folder):
-        os.makedirs(download_folder)
+    os.makedirs(download_folder, exist_ok=True)
 
-    # Delete any existing file with the song title, regardless of format
-    for ext in ['mp3', 'm4a', 'flac', 'ogg', 'wav']:  # Add more formats as needed
-        file_path = f"data/downloads/{song_title}.{ext}"
-        if os.path.exists(file_path):
-            os.remove(file_path)
+    # Delete any existing file with the song title
+    existing_files = [
+        os.path.join(download_folder, f) 
+        for f in os.listdir(download_folder) 
+        if song_title.lower() in f.lower() and f.endswith(('.mp3', '.m4a', '.flac', '.ogg', '.wav'))
+    ]
+    for file_path in existing_files:
+        os.remove(file_path)
 
     # Search query for the song
     query = f"{song_title} {artist_name}"
 
-    # Options for yt-dlp to download the best available audio
+    # Options for yt-dlp
     ydl_opts = {
-        'format': 'bestaudio/best',  # Download the best audio format available
+        'format': 'bestaudio/best',  # Download only audio
         'outtmpl': os.path.join(download_folder, '%(title)s.%(ext)s'),  # Save to download folder
-        'noplaylist': True,  # Avoid downloading playlists
-        'quiet': False,  # Show download progress
+        'noplaylist': True,  # Avoid playlists
+        'quiet': True,  # Suppress verbose output
+        'postprocessors': [
+            {'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '320'},
+        ],
     }
 
-    # Use yt-dlp to download the audio
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        result = ydl.download([f"ytsearch:{query}"])
+    # Download the audio using yt-dlp
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            result = ydl.download([f"ytsearch:{query}"])
 
-    # After downloading, check the folder for the downloaded file
-    if result == 0:
-        # Get the downloaded file by looking for files with the song title
-        files_in_download_folder = os.listdir(download_folder)
-        
-        # Look for the most likely match (could use more complex matching if needed)
-        downloaded_file = None
-        for file in files_in_download_folder:
-            if song_title.lower() in file.lower():  # Match case-insensitive
-                downloaded_file = file
-                break
-        
-        if downloaded_file is None:
-            print("No matching file found for the song.")
-            return None
-        
-        downloaded_file_path = os.path.join(download_folder, downloaded_file)
-        
-        # Define the output MP3 path
-        mp3_output_path = os.path.join(download_folder, f"{song_title}.mp3")
+        if result == 0:
+            # Find the downloaded MP3 file
+            files_in_download_folder = os.listdir(download_folder)
+            for file in files_in_download_folder:
+                if song_title.lower() in file.lower() and file.endswith('.mp3'):
+                    return os.path.join(download_folder, file)
 
-        # Use FFmpeg to convert the audio to MP3 at 320kbps
-        command = [
-            'ffmpeg', 
-            '-i', downloaded_file_path,  # Input file
-            '-vn',  # Disable video
-            '-ar', '44100',  # Set audio sample rate to 44.1kHz
-            '-ac', '2',  # Stereo output
-            '-b:a', '320k',  # Set bitrate to 320kbps
-            mp3_output_path  # Output file path
-        ]
-        try:
-            subprocess.run(command, check=True)
-            # Remove the original file after conversion
-            os.remove(downloaded_file_path)
-            return mp3_output_path
-        except subprocess.CalledProcessError as e:
-            print(f"Error during FFmpeg conversion: {e}")
-            return None
-    else:
-        print("Error downloading the song.")
+        print("No matching MP3 file found.")
         return None
+    except Exception as e:
+        print(f"Error downloading or converting the song: {e}")
+        return None
+
 
 # Example usage
 # song_title = "Shape of You"
