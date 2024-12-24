@@ -1,5 +1,4 @@
-data
-utils/__pycache__
 .venv
-README.md
+__pycache__
+temp
 .env
