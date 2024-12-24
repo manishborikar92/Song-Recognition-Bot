@@ -10,6 +10,7 @@ from downloader.song_downloader import download_song
 from downloader.youtube import download_youtube_video
 from utils.acrcloud_handler import recognize_song
 from utils.audio_extractor import convert_video_to_mp3
+from utils.clear_data import delete_all
 from tempfile import TemporaryDirectory
 
 # Load environment variables from .env file
@@ -200,6 +201,9 @@ async def handle_message(update: Update, context: CallbackContext):
 
     except Exception as e:
         logger.error(f"Error: {e}")
+
+    finally:
+        delete_all()
         
 # Main function
 def main():
