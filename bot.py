@@ -262,16 +262,22 @@ async def handle_message(update: Update, context: CallbackContext):
             reply_markup = InlineKeyboardMarkup(keyboard)
 
             response_message = (
-                f"🎶 **Song Found: {title}**\n\n"
-                f"- Artists: {artists}\n"
-                f"- Album: {album}\n"
-                f"- Genres: {genres}\n"
-                f"- Release Date: {release_date}\n"
+                f"🎶 <b>Song Found: {title}</b>\n\n"
+                f"✨ <b>Artists:</b> {artists}\n"
+                f"🎧 <b>Album:</b> {album}\n"
+                f"🎶 <b>Genres:</b> {genres}\n"
+                f"📅 <b>Release Date:</b> {release_date}\n\n"
+                "👇 Listen and enjoy the song below!  🎶"
             )
 
             with open(song_path, "rb") as song_file:
                 await downloading_message.delete()
-                await update.message.reply_audio(audio=song_file, caption=response_message, reply_markup=reply_markup, parse_mode="Markdown")
+                await update.message.reply_audio(
+                    audio=song_file, 
+                    caption=response_message, 
+                    reply_markup=reply_markup, 
+                    parse_mode="HTML"
+                )
 
     except Exception as e:
         logger.error(f"Error: {e}")
