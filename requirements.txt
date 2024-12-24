@@ -1,8 +1,11 @@
-python-telegram-bot
-requests
-ffmpeg-python
-yt-dlp
 instaloader
+yt-dlp
+requests
+aiohttp
+aiofiles
+pydub
+python-telegram-bot
+ffmpeg-python
 python-dotenv
 flask
 asyncio
