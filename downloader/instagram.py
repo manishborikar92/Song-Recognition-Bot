@@ -41,7 +41,8 @@ def download_instagram_reel(url):
             with open(video_path, 'wb') as video_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     video_file.write(chunk)
-            
+                    
+            print('Instagram Video Downloaded')
             return video_path, first_sentence
         else:
             raise ValueError("The provided URL does not point to a reel (video).")

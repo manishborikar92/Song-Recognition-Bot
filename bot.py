@@ -129,7 +129,7 @@ async def handle_message(update: Update, context: CallbackContext):
                     # Check file size
                     file_size_mb = os.path.getsize(video_path) / (1024 * 1024)  # Convert bytes to MB
                     if file_size_mb > 50:  # File size exceeds 50MB
-                        await downloading_message.edit_text("❌ Can't send file due to Telegram's 50MB limit. Continuing with other tasks...")
+                        await downloading_message.edit_text("❌ Can't send file due to Telegram's 50MB limit.")
                     else:
                         # Send the video if it's within the limit
                         with open(video_path, "rb") as video:
@@ -161,14 +161,13 @@ async def handle_message(update: Update, context: CallbackContext):
             if "video_path" in locals():
                 await downloading_message.edit_text("🎧 Video downloaded! Extracting audio...")
                 audio_path = await asyncio.to_thread(convert_video_to_mp3, video_path)
-                os.remove(video_path)
 
             # Recognize song
             await downloading_message.edit_text("🔍 Recognizing song...")
             song_info = await asyncio.to_thread(recognize_song, audio_path, acr_host, acr_access_key, acr_access_secret)
 
             if not song_info or "metadata" not in song_info or not song_info["metadata"].get("music"):
-                raise Exception("Failed to recognize the song.")
+                await downloading_message.edit_text("Failed to recognize the song.")
 
             # Extract song metadata
             song = song_info["metadata"]["music"][0]

@@ -12,7 +12,7 @@ def download_youtube_video(url):
         # Set up yt-dlp options
         ydl_opts = {
             'format': 'bestvideo+bestaudio/best',  # Get the best video and audio streams
-            'outtmpl': 'temp/videos/%(title)s.%(ext)s',  # Save with the title as filename
+            'outtmpl': 'temp/videos/%(id)s.%(ext)s',  # Save with the id as filename
             'noplaylist': True,  # Avoid downloading entire playlists
             'merge_output_format': 'mp4',  # Merge audio and video into mp4 if needed
             'postprocessors': [{  # Force conversion to mp4
@@ -37,11 +37,12 @@ def download_youtube_video(url):
             # Get the first non-empty line of the description
             first_sentence = get_first_sentence(caption)
         
+        print('YouTube Video Downloaded')
         return video_path, first_sentence
     except Exception as e:
         return str(e), None
 
 # # Example usage
-# url = "https://youtube.com/shorts/2_zGMxCPk-Y?si=b12iFJoCuLR-DIQr"  # Replace with an actual YouTube video URL
+# url = "https://youtu.be/PXGycbkbtW0?si=NqaNyI0kWmWFan7N"
 # video_path, description = download_youtube_video(url)
 # print(f"Downloaded video path: {video_path}\nDescription: {description}")

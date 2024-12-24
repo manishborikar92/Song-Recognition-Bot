@@ -29,6 +29,7 @@ def download_song(title, artist):
             search_results = ydl.extract_info(f"ytsearch:{search_query}", download=True)['entries'][0]
             audio_path = os.path.join(save_dir, f"{search_results['title']}.mp3")
 
+        print('Song Downloaded')
         return audio_path
     except Exception as e:
         return str(e)
