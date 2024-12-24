@@ -33,7 +33,13 @@ logger = logging.getLogger(__name__)
 
 # Start command handler
 async def start(update: Update, context: CallbackContext):
-    await update.message.reply_text("Hi! I’m your music bot. Send me a URL or upload a file, and I'll process it for you!")
+    await update.message.reply_text(
+        "🎵 <b>Hello there!</b> I’m <b>@TuneDetectBot</b>, your personal music detective powered by <a href='https://t.me/ProjectON3'>ProjectON3</a>. 🎶\n\n"
+        "✨ Simply send me a <b>URL</b>, upload a <b>file</b>, or send a <b>voice message</b>, and I'll work my magic to identify the song for you! 🚀",
+        parse_mode='HTML'
+    )
+
+
 
 async def check_membership(user_id: int, bot_token: str):
     application = ApplicationBuilder().token(bot_token).build()
@@ -75,7 +81,10 @@ async def handle_message(update: Update, context: CallbackContext):
         current_time = time.time()
         if user_id in last_request_time and current_time - last_request_time[user_id] < USER_RATE_LIMIT:
             remaining_time = USER_RATE_LIMIT - (current_time - last_request_time[user_id])
-            await update.message.reply_text(f"⏳ Please wait {remaining_time:.0f} seconds before making another request.")
+            await update.message.reply_text(
+                f"⏳ <b>Please wait {remaining_time:.0f} seconds</b> before making another request.",
+                parse_mode='HTML'
+            )
             return
 
         # Update the last request time for the user
@@ -87,7 +96,11 @@ async def handle_message(update: Update, context: CallbackContext):
         is_member = await check_membership(user_id, bot_token)
     except Exception as e:
         print(f"Error checking membership: {e}")
-        await update.message.reply_text("Unable to verify membership at the moment. Please try again later.")
+        await update.message.reply_text(
+            "<b>Oops!</b> 😔 I’m unable to verify your membership at the moment. <i>Please try again later.</i> ⏳",
+            parse_mode='HTML',  # Use HTML formatting
+            reply_to_message_id=update.message.message_id
+        )
         return
 
     if not is_member:
@@ -97,8 +110,9 @@ async def handle_message(update: Update, context: CallbackContext):
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text(
-            "🚫 You must join our group and channel to use this bot. Please join using the buttons below and try again.",
+            "🚫 <b>You must join our group and channel to use this bot.</b> Please join using the buttons below and try again. 🙏",
             reply_markup=reply_markup,
+            parse_mode='HTML'
         )
         return
 
@@ -110,7 +124,11 @@ async def handle_message(update: Update, context: CallbackContext):
             if update.message.text:  # URL input
                 url = update.message.text
                 if "instagram.com" in url:
-                    downloading_message = await update.message.reply_text("⬇️ Downloading Instagram video...")
+                    downloading_message = await update.message.reply_text(
+                        "<b>⬇️ Downloading Instagram Reel...</b> <i>Hang tight! This won't take long. 🚀</i>",
+                        parse_mode='HTML',  # Use HTML formatting
+                        reply_to_message_id=update.message.message_id
+                    )
                     video_path, caption = await asyncio.to_thread(download_instagram_reel, url)
 
                     if not video_path or not caption:
@@ -120,7 +138,19 @@ async def handle_message(update: Update, context: CallbackContext):
                         await update.message.reply_video(video=video, caption=caption)
 
                 elif "youtube.com" in url or "youtu.be" in url:
-                    downloading_message = await update.message.reply_text("⬇️ Downloading YouTube video...")
+                    if "/shorts" in url:
+                        downloading_message = await update.message.reply_text(
+                            "<b>⬇️ Downloading YouTube Short...</b> <i>Hang tight! This won't take long. 🚀</i>",
+                            parse_mode='HTML',
+                            reply_to_message_id=update.message.message_id
+                        )
+                    else:
+                        downloading_message = await update.message.reply_text(
+                            "<b>⬇️ Downloading YouTube Video...</b> <i>Hang tight! This won't take long. 🚀</i>",
+                            parse_mode='HTML',
+                            reply_to_message_id=update.message.message_id
+                        )
+                        
                     video_path, caption = await asyncio.to_thread(download_youtube_video, url)
 
                     if not video_path or not caption:
@@ -129,17 +159,37 @@ async def handle_message(update: Update, context: CallbackContext):
                     # Check file size
                     file_size_mb = os.path.getsize(video_path) / (1024 * 1024)  # Convert bytes to MB
                     if file_size_mb > 50:  # File size exceeds 50MB
-                        await downloading_message.edit_text("❌ Can't send file due to Telegram's 50MB limit.")
+                       await update.message.reply_text(
+                            "<b>🚫 Oops!</b> I can't send videos because Telegram has a <b>50MB limit</b>. 📉 "
+                            "But don't worry, I'm here to help with <b>other formats</b>! 🎵",
+                            parse_mode='HTML',
+                            reply_to_message_id=update.message.message_id
+                        )
                     else:
                         # Send the video if it's within the limit
                         with open(video_path, "rb") as video:
                             await update.message.reply_video(video=video, caption=caption)
+
+                elif update.message.text:
+                    await update.message.reply_text(
+                        "🚫 <b>Hey!</b> Please don't send me text messages. Instead, send me a <b>link</b>, <b>video</b>, <b>audio</b>, or <b>voice message</b> 🎶📹🎤, and I'll process it for you!",
+                        parse_mode='HTML',
+                        reply_to_message_id=update.message.message_id
+                    )
+                    return
+                
                 else:
-                    await update.message.reply_text("❌ Invalid URL. Please provide a valid Instagram or YouTube link.")
+                    await update.message.reply_text(
+                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
+                        parse_mode='HTML'
+                    )
                     return
 
             elif update.message.video:  # Video file input
-                downloading_message = await update.message.reply_text("⬇️ Processing uploaded video...")
+                downloading_message = await update.message.reply_text(
+                    "🎬 <b>Processing your uploaded video...</b> <i>Please wait while I work my magic!</i> ✨",
+                    parse_mode='HTML'
+                )
                 video = update.message.video
                 file = await context.bot.get_file(video.file_id)
                 video_path = os.path.join(temp_dir, f"{video.file_id}.mp4")
@@ -147,27 +197,42 @@ async def handle_message(update: Update, context: CallbackContext):
                 caption = None
 
             elif update.message.audio or update.message.voice:  # Audio file input
-                downloading_message = await update.message.reply_text("⬇️ Processing uploaded audio...")
+                downloading_message = await update.message.reply_text(
+                    "🎶 <b>Processing your uploaded audio...</b> <i>Please hold on while I analyze the sound!</i> 🎧✨",
+                    parse_mode='HTML'
+                )
                 audio = update.message.audio or update.message.voice
                 file = await context.bot.get_file(audio.file_id)
                 audio_path = os.path.join(temp_dir, f"{audio.file_id}.mp3")
                 await file.download_to_drive(custom_path=audio_path)
 
             else:
-                await update.message.reply_text("❌ Unsupported input type. Please send a valid URL, video, or audio.")
+                await update.message.reply_text(
+                    "❌ <b>Unsupported input type</b>. Please send a valid <b>URL</b>, <b>video</b>, or <b>audio</b> 🎶📹🔗 so I can assist you! 💡",
+                    parse_mode='HTML'
+                )
                 return
 
             # Extract audio if video was provided
             if "video_path" in locals():
-                await downloading_message.edit_text("🎧 Video downloaded! Extracting audio...")
+                await downloading_message.edit_text(
+                    "🎧 <b>Video downloaded!</b> Now <i>extracting audio...</i> 🎶🔊",
+                    parse_mode='HTML'
+                )
                 audio_path = await asyncio.to_thread(convert_video_to_mp3, video_path)
 
             # Recognize song
-            await downloading_message.edit_text("🔍 Recognizing song...")
+            await downloading_message.edit_text(
+                "🔍 <b>Recognizing song...</b> 🎶🎧",
+                parse_mode='HTML'
+            )
             song_info = await asyncio.to_thread(recognize_song, audio_path, acr_host, acr_access_key, acr_access_secret)
 
             if not song_info or "metadata" not in song_info or not song_info["metadata"].get("music"):
-                await downloading_message.edit_text("Failed to recognize the song.")
+                await downloading_message.edit_text(
+                    "❌ <b>Failed to recognize the song.</b> Please try again later. 🎶😞",
+                    parse_mode='HTML'
+                )
 
             # Extract song metadata
             song = song_info["metadata"]["music"][0]
@@ -184,7 +249,10 @@ async def handle_message(update: Update, context: CallbackContext):
             spotify_link = f"https://open.spotify.com/track/{spotify_track_id}" if spotify_track_id else f"https://open.spotify.com/search/{title}"
 
             # Download song
-            await downloading_message.edit_text("⬇️ Downloading song...")
+            await downloading_message.edit_text(
+                "⬇️ <b>Downloading song...</b> 🎶🚀",
+                parse_mode='HTML'
+            )
             song_path = await asyncio.to_thread(download_song, title, artists)
 
             # Send response
