@@ -28,7 +28,7 @@ USER_RATE_LIMIT = 60  # Allow 1 request per minute per user
 last_request_time = {}
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Start command handler
@@ -126,8 +126,14 @@ async def handle_message(update: Update, context: CallbackContext):
                     if not video_path or not caption:
                         raise Exception("Failed to fetch YouTube video.")
 
-                    with open(video_path, "rb") as video:
-                        await update.message.reply_video(video=video, caption=caption)
+                    # Check file size
+                    file_size_mb = os.path.getsize(video_path) / (1024 * 1024)  # Convert bytes to MB
+                    if file_size_mb > 50:  # File size exceeds 50MB
+                        await downloading_message.edit_text("❌ Can't send file due to Telegram's 50MB limit. Continuing with other tasks...")
+                    else:
+                        # Send the video if it's within the limit
+                        with open(video_path, "rb") as video:
+                            await update.message.reply_video(video=video, caption=caption)
                 else:
                     await update.message.reply_text("❌ Invalid URL. Please provide a valid Instagram or YouTube link.")
                     return
@@ -155,6 +161,7 @@ async def handle_message(update: Update, context: CallbackContext):
             if "video_path" in locals():
                 await downloading_message.edit_text("🎧 Video downloaded! Extracting audio...")
                 audio_path = await asyncio.to_thread(convert_video_to_mp3, video_path)
+                os.remove(video_path)
 
             # Recognize song
             await downloading_message.edit_text("🔍 Recognizing song...")
