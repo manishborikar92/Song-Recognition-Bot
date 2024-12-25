@@ -123,7 +123,7 @@ async def handle_message(update: Update, context: CallbackContext):
             # Determine input type
             if update.message.text:  # URL input
                 url = update.message.text
-                if "instagram.com" in url:
+                if "instagram.com/" in url:
                     downloading_message = await update.message.reply_text(
                         "<b>⬇️ Downloading Instagram Reel...</b> <i>Hang tight! This won't take long. 🚀</i>",
                         parse_mode='HTML',  # Use HTML formatting
@@ -133,7 +133,7 @@ async def handle_message(update: Update, context: CallbackContext):
 
                     if not video_path or not caption:
                         await downloading_message.edit_text(
-                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Youtube</b> link. 🌐🔗",
+                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> link. 🌐🔗",
                         parse_mode='HTML'
                         )
                         raise Exception("Failed to fetch Instagram video.")
@@ -178,7 +178,7 @@ async def handle_message(update: Update, context: CallbackContext):
                         with open(video_path, "rb") as video:
                             await update.message.reply_video(video=video, caption=caption)    
                 
-                elif ("https://" in url or "http://" in url) and not ("youtube.com" in url or "instagram.com" in url):
+                elif ("https://" in url or "http://" in url):
                     await update.message.reply_text(
                         "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
                         parse_mode='HTML',
@@ -265,7 +265,14 @@ async def handle_message(update: Update, context: CallbackContext):
                 "⬇️ <b>Downloading song...</b> 🎶🚀",
                 parse_mode='HTML'
             )
+
             song_path = await asyncio.to_thread(download_song, title, artists)
+
+            if not song_path:
+                await update.message.reply_text(
+                    "🚫 <b>Song file not found.</b> This could happen when song recognized but file not found on web 🥲",
+                    parse_mode='HTML'
+                )
 
             # Send response
             keyboard = [
@@ -282,14 +289,21 @@ async def handle_message(update: Update, context: CallbackContext):
                 "👇 Listen and enjoy the song below!  🎶"
             )
 
-            with open(song_path, "rb") as song_file:
+            if song_path:
+                with open(song_path, "rb") as song_file:
+                    await downloading_message.delete()
+                    await update.message.reply_audio(
+                        audio=song_file, 
+                        caption=response_message, 
+                        reply_markup=reply_markup, 
+                        parse_mode="HTML"
+                    )
+            else:
                 await downloading_message.delete()
-                await update.message.reply_audio(
-                    audio=song_file, 
-                    caption=response_message, 
-                    reply_markup=reply_markup, 
+                await update.message.reply_text(
+                    text=response_message,
                     parse_mode="HTML"
-                )
+                    )
 
     except Exception as e:
         logger.error(f"Error: {e}")

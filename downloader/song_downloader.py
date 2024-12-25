@@ -32,7 +32,7 @@ def download_song(title, artist):
         print('Song Downloaded')
         return audio_path
     except Exception as e:
-        return str(e)
+        return None
 
 # # Example usage
 # title = "Blinding Lights"
