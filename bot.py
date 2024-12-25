@@ -123,7 +123,7 @@ async def handle_message(update: Update, context: CallbackContext):
             # Determine input type
             if update.message.text:  # URL input
                 url = update.message.text
-                if "instagram.com/" in url:
+                if "instagram.com" in url:
                     downloading_message = await update.message.reply_text(
                         "<b>⬇️ Downloading Instagram Reel...</b> <i>Hang tight! This won't take long. 🚀</i>",
                         parse_mode='HTML',  # Use HTML formatting
