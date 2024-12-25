@@ -10,3 +10,4 @@ python-dotenv
 flask
 asyncio
 pydub
+eyed3

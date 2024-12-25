@@ -91,8 +91,11 @@ def recognize_song(audio_path, host, access_key, access_secret):
 
         # Extract metadata
         if "metadata" in response_data and "music" in response_data["metadata"]:
-            title = response_data["metadata"]["music"][0].get("title", "Unknown Title")
-            print(f"Title: {title}")
+            song_info = response_data
+            song = song_info["metadata"]["music"][0]
+            title = song.get("title", "Unknown Title")
+            artists = ", ".join(artist["name"] for artist in song.get("artists", []))
+            print(f"Title: {title}\n Artists: {artists}")
         else:
             print("No match found in ACRCloud database.")
             return response_data

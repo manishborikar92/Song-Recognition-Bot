@@ -288,15 +288,19 @@ async def handle_message(update: Update, context: CallbackContext):
                 f"📅 <b>Release Date:</b> {release_date}\n\n"
                 "👇 Listen and enjoy the song below!  🎶"
             )
-            print(song_path)
-            with open(song_path, "rb") as song_file:
+            # Assuming song_path is the file path of the downloaded MP3
+            # Ensure the file exists before trying to send it
+            if os.path.isfile(song_path):
                 await downloading_message.delete()
                 await update.message.reply_audio(
-                    audio=song_file, 
-                    caption=response_message, 
-                    reply_markup=reply_markup, 
+                    audio=song_path,  # Send the file path directly
+                    caption=response_message,
+                    reply_markup=reply_markup,
                     parse_mode="HTML"
                 )
+            else:
+                await update.message.reply_text("The audio file could not be found.")
+
 
     except Exception as e:
         logger.error(f"Error: {e}")
