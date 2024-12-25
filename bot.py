@@ -177,7 +177,7 @@ async def handle_message(update: Update, context: CallbackContext):
                     else:
                         # Send the video if it's within the limit
                         with open(video_path, "rb") as video:
-                            await update.message.reply_video(video=video, caption=caption)    
+                            await update.message.reply_video(video=video, caption=caption)   
                 
                 elif re.match(r"^https?://(www\.)?([\w.-]+)(/.*)?$", url):
                     await update.message.reply_text(
@@ -266,7 +266,6 @@ async def handle_message(update: Update, context: CallbackContext):
                 "⬇️ <b>Downloading song...</b> 🎶🚀",
                 parse_mode='HTML'
             )
-
             song_path = await asyncio.to_thread(download_song, title, artists)
 
             if not song_path:
@@ -289,22 +288,15 @@ async def handle_message(update: Update, context: CallbackContext):
                 f"📅 <b>Release Date:</b> {release_date}\n\n"
                 "👇 Listen and enjoy the song below!  🎶"
             )
-
-            if song_path:
+            print(song_path)
+            with open(song_path, "rb") as song_file:
                 await downloading_message.delete()
-                with open(song_path, "rb") as song_file:
-                    await update.message.reply_audio(
-                        audio=song_file, 
-                        caption=response_message, 
-                        reply_markup=reply_markup, 
-                        parse_mode="HTML"
-                    )
-            else:
-                await downloading_message.delete()
-                await update.message.reply_text(
-                    text=response_message,
+                await update.message.reply_audio(
+                    audio=song_file, 
+                    caption=response_message, 
+                    reply_markup=reply_markup, 
                     parse_mode="HTML"
-                    )
+                )
 
     except Exception as e:
         logger.error(f"Error: {e}")
