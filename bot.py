@@ -169,7 +169,7 @@ async def handle_message(update: Update, context: CallbackContext):
                     file_size_mb = os.path.getsize(video_path) / (1024 * 1024)  # Convert bytes to MB
                     if file_size_mb > 50:  # File size exceeds 50MB
                        await update.message.reply_text(
-                            "<b>🚫 Oops!</b> I can't send videos because Telegram has a <b>50MB limit</b>. 📉 "
+                            "<b>🚫 Oops!</b> I can't send video because Telegram Bot has a <b>50MB limit</b>. 📉 "
                             "But don't worry, I'm here to help with <b>other formats</b>! 🎵",
                             parse_mode='HTML',
                             reply_to_message_id=update.message.message_id
@@ -288,19 +288,30 @@ async def handle_message(update: Update, context: CallbackContext):
                 f"📅 <b>Release Date:</b> {release_date}\n\n"
                 "👇 Listen and enjoy the song below!  🎶"
             )
-            # Assuming song_path is the file path of the downloaded MP3
-            # Ensure the file exists before trying to send it
-            if os.path.isfile(song_path):
+
+            # Check file size
+            file_size_mb = os.path.getsize(song_path) / (1024 * 1024)  # Convert bytes to MB
+            if file_size_mb > 50:  # File size exceeds 50MB
                 await downloading_message.delete()
-                await update.message.reply_audio(
-                    audio=song_path,  # Send the file path directly
-                    caption=response_message,
+                await update.message.reply_text(
+                    text=(
+                        "<b>🚫 Oops!</b> I can't send the song because Telegram Bot has a <b>50MB limit</b>. 📉\n\n"
+                        "But don't worry, here is the song info and play buttons! 🎵\n\n" + response_message
+                    ),
                     reply_markup=reply_markup,
-                    parse_mode="HTML"
+                    parse_mode='HTML',
+                    reply_to_message_id=update.message.message_id
                 )
             else:
-                await update.message.reply_text("The audio file could not be found.")
-
+                # Send the audio if it's within the limit
+                with open(song_path, "rb") as song_file:
+                    await downloading_message.delete()
+                    await update.message.reply_audio(
+                        audio=song_file,
+                        caption=response_message,
+                        reply_markup=reply_markup,
+                        parse_mode="HTML"
+                    )
 
     except Exception as e:
         logger.error(f"Error: {e}")
