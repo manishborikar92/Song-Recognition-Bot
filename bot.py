@@ -124,7 +124,7 @@ async def handle_message(update: Update, context: CallbackContext):
             # Determine input type
             if update.message.text:  # URL input
                 url = update.message.text
-                if re.match(r"^https?://(www\.)?instagram\.com/.*", url):
+                if re.match(r"^https?://(www\.)?instagram\.com/.*$", url):
                     downloading_message = await update.message.reply_text(
                         "<b>⬇️ Downloading Instagram Reel...</b> <i>Hang tight! This won't take long. 🚀</i>",
                         parse_mode='HTML',  # Use HTML formatting
@@ -142,7 +142,7 @@ async def handle_message(update: Update, context: CallbackContext):
                     with open(video_path, "rb") as video:
                         await update.message.reply_video(video=video, caption=caption)
 
-                elif "youtube.com" in url or "youtu.be" in url:
+                elif re.match(r"^https?://(www\.)?(youtube\.com|youtu\.be)/.*$", url):
                     if "/shorts" in url:
                         downloading_message = await update.message.reply_text(
                             "<b>⬇️ Downloading YouTube Short...</b> <i>Hang tight! This won't take long. 🚀</i>",
@@ -179,7 +179,7 @@ async def handle_message(update: Update, context: CallbackContext):
                         with open(video_path, "rb") as video:
                             await update.message.reply_video(video=video, caption=caption)    
                 
-                elif not re.match(r"^https?://(www\.)?(youtube\.com|youtu\.be|instagram\.com)/.*", url):
+                elif re.match(r"^https?://(www\.)?([\w.-]+)(/.*)?$", url):
                     await update.message.reply_text(
                         "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
                         parse_mode='HTML',
@@ -291,8 +291,8 @@ async def handle_message(update: Update, context: CallbackContext):
             )
 
             if song_path:
+                await downloading_message.delete()
                 with open(song_path, "rb") as song_file:
-                    await downloading_message.delete()
                     await update.message.reply_audio(
                         audio=song_file, 
                         caption=response_message, 
