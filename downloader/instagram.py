@@ -47,7 +47,7 @@ def download_instagram_reel(url):
         else:
             raise ValueError("The provided URL does not point to a reel (video).")
     except Exception as e:
-        return str(e), None
+        return None, None
 
 # # Example usage
 # url = "https://www.instagram.com/reel/DDMhHzkT6m3/?igsh=ZW1yYndoN2piZGM4"

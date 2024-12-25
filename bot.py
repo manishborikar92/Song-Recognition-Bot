@@ -132,6 +132,10 @@ async def handle_message(update: Update, context: CallbackContext):
                     video_path, caption = await asyncio.to_thread(download_instagram_reel, url)
 
                     if not video_path or not caption:
+                        await downloading_message.edit_text(
+                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Youtube</b> link. 🌐🔗",
+                        parse_mode='HTML'
+                        )
                         raise Exception("Failed to fetch Instagram video.")
 
                     with open(video_path, "rb") as video:
@@ -154,6 +158,10 @@ async def handle_message(update: Update, context: CallbackContext):
                     video_path, caption = await asyncio.to_thread(download_youtube_video, url)
 
                     if not video_path or not caption:
+                        await downloading_message.edit_text(
+                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Youtube</b> link. 🌐🔗",
+                        parse_mode='HTML'
+                        )
                         raise Exception("Failed to fetch YouTube video.")
 
                     # Check file size
@@ -168,11 +176,11 @@ async def handle_message(update: Update, context: CallbackContext):
                     else:
                         # Send the video if it's within the limit
                         with open(video_path, "rb") as video:
-                            await update.message.reply_video(video=video, caption=caption)
-
-                elif update.message.text:
+                            await update.message.reply_video(video=video, caption=caption)    
+                
+                elif ("https://" in url or "http://" in url) and not ("youtube.com" in url or "instagram.com" in url):
                     await update.message.reply_text(
-                        "🚫 <b>Hey!</b> Please don't send me text messages. Instead, send me a <b>link</b>, <b>video</b>, <b>audio</b>, or <b>voice message</b> 🎶📹🎤, and I'll process it for you!",
+                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
                         parse_mode='HTML',
                         reply_to_message_id=update.message.message_id
                     )
@@ -180,15 +188,17 @@ async def handle_message(update: Update, context: CallbackContext):
                 
                 else:
                     await update.message.reply_text(
-                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
-                        parse_mode='HTML'
+                        "🚫 <b>Hey!</b> Please don't send me text messages. Instead, send me a <b>link</b>, <b>video</b>, <b>audio</b>, or <b>voice message</b> 🎶📹🎤, and I'll process it for you!",
+                        parse_mode='HTML',
+                        reply_to_message_id=update.message.message_id
                     )
                     return
 
             elif update.message.video:  # Video file input
                 downloading_message = await update.message.reply_text(
                     "🎬 <b>Processing your uploaded video...</b> <i>Please wait while I work my magic!</i> ✨",
-                    parse_mode='HTML'
+                    parse_mode='HTML',
+                    reply_to_message_id=update.message.message_id
                 )
                 video = update.message.video
                 file = await context.bot.get_file(video.file_id)
@@ -199,7 +209,8 @@ async def handle_message(update: Update, context: CallbackContext):
             elif update.message.audio or update.message.voice:  # Audio file input
                 downloading_message = await update.message.reply_text(
                     "🎶 <b>Processing your uploaded audio...</b> <i>Please hold on while I analyze the sound!</i> 🎧✨",
-                    parse_mode='HTML'
+                    parse_mode='HTML',
+                    reply_to_message_id=update.message.message_id
                 )
                 audio = update.message.audio or update.message.voice
                 file = await context.bot.get_file(audio.file_id)
@@ -209,7 +220,8 @@ async def handle_message(update: Update, context: CallbackContext):
             else:
                 await update.message.reply_text(
                     "❌ <b>Unsupported input type</b>. Please send a valid <b>URL</b>, <b>video</b>, or <b>audio</b> 🎶📹🔗 so I can assist you! 💡",
-                    parse_mode='HTML'
+                    parse_mode='HTML',
+                    reply_to_message_id=update.message.message_id
                 )
                 return
 
