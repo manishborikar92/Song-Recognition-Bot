@@ -179,7 +179,7 @@ async def handle_message(update: Update, context: CallbackContext):
                         with open(video_path, "rb") as video:
                             await update.message.reply_video(video=video, caption=caption)    
                 
-                elif ("https://" in url or "http://" in url):
+                elif not re.match(r"^https?://(www\.)?(youtube\.com|youtu\.be|instagram\.com)/.*", url):
                     await update.message.reply_text(
                         "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
                         parse_mode='HTML',
