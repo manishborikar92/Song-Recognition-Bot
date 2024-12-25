@@ -129,7 +129,10 @@ async def handle_message(update: Update, context: CallbackContext):
                         parse_mode='HTML',  # Use HTML formatting
                         reply_to_message_id=update.message.message_id
                     )
-                    video_path, caption = await asyncio.to_thread(download_instagram_reel, url)
+                    if url != "instagram.com":
+                        video_path, caption = await asyncio.to_thread(download_instagram_reel, url)
+                    else:
+                        video_path, caption = None, None
 
                     if not video_path or not caption:
                         await downloading_message.edit_text(
