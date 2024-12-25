@@ -1,5 +1,4 @@
 import os
-import re
 from yt_dlp import YoutubeDL
 import eyed3
 
@@ -21,56 +20,44 @@ def download_song(title, artist):
     # Construct the search query
     query = f"{title} {artist} audio"
 
-    # Configure yt-dlp options
+    # Configure yt-dlp options for faster downloads
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '320',
+            'preferredquality': '192',
         }],
-        'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
-        'quiet': True,
+        'outtmpl': os.path.join(output_dir, f'{title}.%(ext)s'),
+        'quiet': True,  # Reduce console output
         'noplaylist': True,
+        'extractaudio': True,  # Avoid downloading video
     }
 
-    print("Downloading audio...")
+    # Download the song
     with YoutubeDL(ydl_opts) as ydl:
         result = ydl.extract_info(f"ytsearch:{query}", download=True)
 
-    # If multiple entries, get the first one
+    # Get the downloaded file path
     if 'entries' in result:
         result = result['entries'][0]
+    file_path = os.path.join(output_dir, f"{title}.mp3")
 
-    # Dynamically detect the downloaded file's name
-    downloaded_files = os.listdir(output_dir)
-    print("Downloaded files in directory:", downloaded_files)
+    # Ensure the file exists and is not corrupt
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError("The MP3 file was not downloaded correctly.")
 
-    # Match the expected MP3 file in the directory
-    downloaded_file = None
-    for file in downloaded_files:
-        if file.endswith(".mp3") and title in file:
-            downloaded_file = os.path.join(output_dir, file)
-            break
-
-    if not downloaded_file:
-        raise FileNotFoundError(f"The MP3 file was not created: {output_dir}")
-
-    print(f"Detected downloaded file: {downloaded_file}")
-
-    # Add artist name as a tag using eyed3
-    audiofile = eyed3.load(downloaded_file)
-    if audiofile is None:
-        raise ValueError("The file is not a valid MP3 or could not be processed.")
-
-    audiofile.tag.artist = artist
-    audiofile.tag.save()
+    # Add artist name as tag using eyed3
+    audiofile = eyed3.load(file_path)
+    audiofile.tag.artist = artist  # Set artist tag
+    audiofile.tag.save()  # Save changes
 
     # Test if the file can be opened
-    with open(downloaded_file, "rb") as song_file:
+    with open(file_path, "rb") as song_file:
         song_file.read(1)  # Read the first byte to ensure the file is valid
 
-    return downloaded_file
+    return file_path
+
 
 # # Example usage
 # if __name__ == "__main__":
