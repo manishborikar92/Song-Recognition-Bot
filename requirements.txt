@@ -5,3 +5,8 @@ yt-dlp
 eyed3
 pydub
 python-dotenv
+
+asyncio
+aiohttp
+aiofiles
+ffmpeg-python
