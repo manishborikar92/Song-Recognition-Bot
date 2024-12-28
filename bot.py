@@ -76,7 +76,7 @@ async def handle_message(update: Update, context: CallbackContext):
 
     # Check if the user is the exception user
     if int(user_id) == int(EXCEPTION_USER_ID):
-        print('Admin')  # Log admin behavior
+        print('Developer')  # Log admin behavior
     else:
         # Rate-limiting logic for other users
         current_time = time.time()
@@ -96,7 +96,6 @@ async def handle_message(update: Update, context: CallbackContext):
     try:
         is_member = await check_membership(user_id, bot_token)
     except Exception as e:
-        print(f"Error checking membership: {e}")
         await update.message.reply_text(
             "<b>Oops!</b> 😔 I’m unable to verify your membership at the moment. <i>Please try again later.</i> ⏳",
             parse_mode='HTML',  # Use HTML formatting
