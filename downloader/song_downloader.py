@@ -57,6 +57,7 @@ def download_song(title, artist):
     with open(file_path, "rb") as song_file:
         song_file.read(1)  # Read the first byte to ensure the file is valid
 
+    print('Song Downloaded')
     return file_path
 
 
