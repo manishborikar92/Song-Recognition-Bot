@@ -32,7 +32,7 @@ def download_song(title, artist):
         'quiet': True,  # Reduce console output
         'noplaylist': True,
         'extractaudio': True,  # Avoid downloading video
-        'cookiefile': 'youtube_cookies.txt'
+        'cookiefile': 'youtube_cookies.txt',
     }
 
     # Download the song

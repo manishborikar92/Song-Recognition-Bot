@@ -157,11 +157,17 @@ async def handle_message(update: Update, context: CallbackContext):
                         
                     video_path, caption = await asyncio.to_thread(download_youtube_video, url)
 
-                    if not video_path or not caption:
-                        await downloading_message.edit_text(
-                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Youtube</b> link. 🌐🔗",
-                        parse_mode='HTML'
-                        )
+                    if not video_path:
+                        if caption == "Video size exceeds 100MB. Skipping download.":
+                            await downloading_message.edit_text(
+                                "❌ <b>Video size exceeds 100MB!</b> Unable to download. Please provide a smaller video. 📁",
+                                parse_mode='HTML'
+                            )
+                        else:
+                            await downloading_message.edit_text(
+                                "❌ <b>Invalid URL!</b> Please provide a valid <b>YouTube</b> link. 🌐🔗",
+                                parse_mode='HTML'
+                            )
                         raise Exception("Failed to fetch YouTube video.")
 
                     # Check file size
