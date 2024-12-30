@@ -26,22 +26,22 @@ async def handle_message(update: Update, context: CallbackContext):
     if chat_type in ["group", "supergroup", "channel"]:
         return
 
-# Check if the user is in the exception list
+    # Check if user is in the exception list
     if int(user_id) in EXCEPTION_USER_IDS:
         logging.info('Developer')  # Log admin behavior
     else:
-        # Rate-limiting logic for other users
+        # Rate-limiting for other users
         current_time = time.time()
         if user_id in last_request_time and current_time - last_request_time[user_id] < USER_RATE_LIMIT:
             remaining_time = USER_RATE_LIMIT - (current_time - last_request_time[user_id])
             await update.message.reply_text(
-                f"\u23f3 <b>Please wait {remaining_time:.0f} seconds</b> before making another request.",
+                f"\u23f3 <b>Hold up!</b> Please wait <b>{remaining_time:.0f} seconds</b> before making your next request. ⏳",
                 parse_mode='HTML'
             )
             return
 
-        # Update the last request time for the user
-        last_request_time[user_id] = current_time     
+        # Update last request time
+        last_request_time[user_id] = current_time
 
     bot_token = context.bot.token
 
@@ -49,8 +49,8 @@ async def handle_message(update: Update, context: CallbackContext):
         is_member = await check_membership(user_id, bot_token)
     except Exception as e:
         await update.message.reply_text(
-            "<b>Oops!</b> 😔 I’m unable to verify your membership at the moment. <i>Please try again later.</i> ⏳",
-            parse_mode='HTML',  # Use HTML formatting
+            "<b>Oops!</b> 😔 I'm having trouble checking your membership. Try again later! ⏳",
+            parse_mode='HTML',  # HTML formatting
             reply_to_message_id=update.message.message_id
         )
         return
@@ -62,7 +62,7 @@ async def handle_message(update: Update, context: CallbackContext):
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text(
-            "🚫 <b>You must join our group and channel to use this bot.</b> Please join using the buttons below and try again. 🙏",
+            "🚫 <b>You gotta join our group and channel to use this bot!</b> Hit those buttons below to join. 🙏",
             reply_markup=reply_markup,
             parse_mode='HTML'
         )
@@ -72,20 +72,20 @@ async def handle_message(update: Update, context: CallbackContext):
         # Use TemporaryDirectory for temporary file storage
         with TemporaryDirectory() as temp_dir:
 
-            # Determine input type
-            if update.message.text:  # URL input
+            # URL input
+            if update.message.text:
                 url = update.message.text
                 if re.match(r"^https?://(www\.)?instagram\.com/.*$", url):
                     downloading_message = await update.message.reply_text(
-                        "<b>⬇️ Downloading Instagram Reel...</b> <i>Hang tight! This won't take long. 🚀</i>",
-                        parse_mode='HTML',  # Use HTML formatting
+                        "<b>⬇️ Fetching Instagram Reel...</b> <i>Hang tight! 🚀</i>",
+                        parse_mode='HTML',  # HTML formatting
                         reply_to_message_id=update.message.message_id
                     )
                     video_path, caption = await asyncio.to_thread(download_instagram_reel, url)
 
                     if not video_path or not caption:
                         await downloading_message.edit_text(
-                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> link. 🌐🔗",
+                        "❌ <b>Oops!</b> Invalid Instagram URL. Try again! 🌐🔗",
                         parse_mode='HTML'
                         )
                         raise Exception("Failed to fetch Instagram video.")
@@ -96,13 +96,13 @@ async def handle_message(update: Update, context: CallbackContext):
                 elif re.match(r"^https?://(www\.)?(youtube\.com|youtu\.be)/.*$", url):
                     if "/shorts" in url:
                         downloading_message = await update.message.reply_text(
-                            "<b>⬇️ Downloading YouTube Short...</b> <i>Hang tight! This won't take long. 🚀</i>",
+                            "<b>⬇️ Downloading YouTube Short...</b> <i>Hang tight! 🚀</i>",
                             parse_mode='HTML',
                             reply_to_message_id=update.message.message_id
                         )
                     else:
                         downloading_message = await update.message.reply_text(
-                            "<b>⬇️ Downloading YouTube Video...</b> <i>Hang tight! This won't take long. 🚀</i>",
+                            "<b>⬇️ Downloading YouTube Video...</b> <i>Hang tight! 🚀</i>",
                             parse_mode='HTML',
                             reply_to_message_id=update.message.message_id
                         )
@@ -112,33 +112,32 @@ async def handle_message(update: Update, context: CallbackContext):
                     if not video_path:
                         if caption == "Video size exceeds 100MB. Skipping download.":
                             await downloading_message.edit_text(
-                                "❌ <b>Video size exceeds 100MB!</b> Unable to download. Please provide a smaller video. 📁",
+                                "❌ <b>Whoa! Video exceeds 100MB!</b> Please upload a smaller one. 📁",
                                 parse_mode='HTML'
                             )
                         else:
                             await downloading_message.edit_text(
-                                "❌ <b>Invalid URL!</b> Please provide a valid <b>YouTube</b> link. 🌐🔗",
+                                "❌ <b>Invalid URL!</b> Provide a valid <b>YouTube</b> link. 🌐🔗",
                                 parse_mode='HTML'
                             )
                         raise Exception("Failed to fetch YouTube video.")
 
                     # Check file size
                     file_size_mb = os.path.getsize(video_path) / (1024 * 1024)  # Convert bytes to MB
-                    if file_size_mb > 50:  # File size exceeds 50MB
-                       await update.message.reply_text(
-                            "<b>🚫 Oops!</b> I can't send video because Telegram Bot has a <b>50MB limit</b>. 📉 "
-                            "But don't worry, I'm here to help with <b>other formats</b>! 🎵",
+                    if file_size_mb > 50:
+                        await update.message.reply_text(
+                            "<b>🚫 Oops!</b> Telegram's <b>50MB limit</b> blocks this video. 📉 Don't worry though, I’ve got your back with <b>other formats</b>! 🎵",
                             parse_mode='HTML',
                             reply_to_message_id=update.message.message_id
                         )
                     else:
-                        # Send the video if it's within the limit
+                        # Send the video if within the size limit
                         with open(video_path, "rb") as video:
                             await update.message.reply_video(video=video, caption=caption)   
-                
+
                 elif re.match(r"^https?://(www\.)?([\w.-]+)(/.*)?$", url):
                     await update.message.reply_text(
-                        "❌ <b>Invalid URL!</b> Please provide a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
+                        "❌ <b>Invalid URL!</b> Please send a valid <b>Instagram</b> or <b>YouTube</b> link. 🌐🔗",
                         parse_mode='HTML',
                         reply_to_message_id=update.message.message_id
                     )
@@ -146,15 +145,16 @@ async def handle_message(update: Update, context: CallbackContext):
                 
                 else:
                     await update.message.reply_text(
-                        "🚫 <b>Hey!</b> Please don't send me text messages. Instead, send me a <b>link</b>, <b>video</b>, <b>audio</b>, or <b>voice message</b> 🎶📹🎤, and I'll process it for you!",
+                        "🚫 <b>Hey!</b> Don’t send me text messages! Drop a <b>link</b>, <b>video</b>, or <b>audio</b> 🎶📹🎤, and I'll handle the rest!",
                         parse_mode='HTML',
                         reply_to_message_id=update.message.message_id
                     )
                     return
 
-            elif update.message.video:  # Video file input
+            # Process uploaded video
+            elif update.message.video:
                 downloading_message = await update.message.reply_text(
-                    "🎬 <b>Processing your uploaded video...</b> <i>Please wait while I work my magic!</i> ✨",
+                    "🎬 <b>Processing your uploaded video...</b> <i>Almost there!</i> ✨",
                     parse_mode='HTML',
                     reply_to_message_id=update.message.message_id
                 )
@@ -164,9 +164,10 @@ async def handle_message(update: Update, context: CallbackContext):
                 await file.download_to_drive(custom_path=video_path)
                 caption = None
 
-            elif update.message.audio or update.message.voice:  # Audio file input
+            # Process uploaded audio
+            elif update.message.audio or update.message.voice:
                 downloading_message = await update.message.reply_text(
-                    "🎶 <b>Processing your uploaded audio...</b> <i>Please hold on while I analyze the sound!</i> 🎧✨",
+                    "🎶 <b>Processing your audio...</b> <i>Hang tight while I check the beats!</i> 🎧✨",
                     parse_mode='HTML',
                     reply_to_message_id=update.message.message_id
                 )
@@ -177,13 +178,13 @@ async def handle_message(update: Update, context: CallbackContext):
 
             else:
                 await update.message.reply_text(
-                    "❌ <b>Unsupported input type</b>. Please send a valid <b>URL</b>, <b>video</b>, or <b>audio</b> 🎶📹🔗 so I can assist you! 💡",
+                    "❌ <b>Unsupported input type</b>. Send a <b>link</b>, <b>video</b>, or <b>audio</b> 🎶📹🔗 so I can help you out! 💡",
                     parse_mode='HTML',
                     reply_to_message_id=update.message.message_id
                 )
                 return
 
-            # Extract audio if video was provided
+            # Extract audio if video was uploaded
             if "video_path" in locals():
                 await downloading_message.edit_text(
                     "🎧 <b>Video downloaded!</b> Now <i>extracting audio...</i> 🎶🔊",
@@ -191,7 +192,7 @@ async def handle_message(update: Update, context: CallbackContext):
                 )
                 audio_path = await asyncio.to_thread(convert_video_to_mp3, video_path)
 
-            # Recognize song
+            # Recognize the song
             await downloading_message.edit_text(
                 "🔍 <b>Recognizing song...</b> 🎶🎧",
                 parse_mode='HTML'
@@ -200,7 +201,7 @@ async def handle_message(update: Update, context: CallbackContext):
 
             if not song_info or "metadata" not in song_info or not song_info["metadata"].get("music"):
                 await downloading_message.edit_text(
-                    "❌ <b>Failed to recognize the song.</b> Please try again later. 🎶😞",
+                    "❌ <b>Failed to recognize the song.</b> Try again later. 🎶😞",
                     parse_mode='HTML'
                 )
 
@@ -218,16 +219,16 @@ async def handle_message(update: Update, context: CallbackContext):
             spotify_track_id = song.get("external_metadata", {}).get("spotify", {}).get("track", {}).get("id", "")
             spotify_link = f"https://open.spotify.com/track/{spotify_track_id}" if spotify_track_id else f"https://open.spotify.com/search/{title}"
 
-            # Download song
+            # Download the song
             await downloading_message.edit_text(
-                "⬇️ <b>Downloading song...</b> 🎶🚀",
+                "⬇️ <b>Downloading the song...</b> 🎶🚀",
                 parse_mode='HTML'
             )
             song_path = await asyncio.to_thread(download_song, title, artists)
 
             if not song_path:
                 await update.message.reply_text(
-                    "🚫 <b>Song file not found.</b> This could happen when song recognized but file not found on web 🥲",
+                    "🚫 <b>Song file not found.</b> I found the song but couldn't fetch the file 🥲",
                     parse_mode='HTML'
                 )
 
@@ -238,29 +239,28 @@ async def handle_message(update: Update, context: CallbackContext):
             reply_markup = InlineKeyboardMarkup(keyboard)
 
             response_message = (
-                f"🎶 <b>Song Found: {title}</b>\n\n"
+                f"🎶 <b>Song: {title}</b>\n\n"
                 f"✨ <b>Artists:</b> {artists}\n"
                 f"🎧 <b>Album:</b> {album}\n"
                 f"🎶 <b>Genres:</b> {genres}\n"
                 f"📅 <b>Release Date:</b> {release_date}\n\n"
-                "👇 Listen and enjoy the song below!  🎶"
+                "👇 Enjoy listening below! 🎶"
             )
 
             # Check file size
             file_size_mb = os.path.getsize(song_path) / (1024 * 1024)  # Convert bytes to MB
-            if file_size_mb > 50:  # File size exceeds 50MB
+            if file_size_mb > 50:  # Exceeds Telegram's 50MB limit
                 await downloading_message.delete()
                 await update.message.reply_text(
                     text=(
-                        "<b>🚫 Oops!</b> I can't send the song because Telegram Bot has a <b>50MB limit</b>. 📉\n\n"
-                        "But don't worry, here is the song info and play buttons! 🎵\n\n" + response_message
+                        "<b>🚫 Oops!</b> This file exceeds Telegram's <b>50MB limit</b>. 📉 Here’s the song info and play links! 🎵\n\n" + response_message
                     ),
                     reply_markup=reply_markup,
                     parse_mode='HTML',
                     reply_to_message_id=update.message.message_id
                 )
             else:
-                # Send the audio if it's within the limit
+                # Send audio if under the limit
                 with open(song_path, "rb") as song_file:
                     await downloading_message.delete()
                     await update.message.reply_audio(
