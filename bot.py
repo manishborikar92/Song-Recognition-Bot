@@ -20,7 +20,7 @@ load_dotenv()
 # Group and Channel IDs
 GROUP_ID = os.getenv("GROUP_ID")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-EXCEPTION_USER_ID = os.getenv("EXCEPTION_USER_ID")
+EXCEPTION_USER_IDS = set(map(int, os.getenv("EXCEPTION_USER_IDS", "").split(",")))
 GROUP_URL = "https://t.me/+b4-OKLiKbMoyODY1"
 CHANNEL_URL = "https://t.me/ProjectON3"
 
@@ -74,8 +74,8 @@ async def handle_message(update: Update, context: CallbackContext):
     if chat_type in ["group", "supergroup", "channel"]:
         return
 
-    # Check if the user is the exception user
-    if int(user_id) == int(EXCEPTION_USER_ID):
+# Check if the user is in the exception list
+    if int(user_id) in EXCEPTION_USER_IDS:
         print('Developer')  # Log admin behavior
     else:
         # Rate-limiting logic for other users
@@ -83,13 +83,13 @@ async def handle_message(update: Update, context: CallbackContext):
         if user_id in last_request_time and current_time - last_request_time[user_id] < USER_RATE_LIMIT:
             remaining_time = USER_RATE_LIMIT - (current_time - last_request_time[user_id])
             await update.message.reply_text(
-                f"⏳ <b>Please wait {remaining_time:.0f} seconds</b> before making another request.",
+                f"\u23f3 <b>Please wait {remaining_time:.0f} seconds</b> before making another request.",
                 parse_mode='HTML'
             )
             return
 
         # Update the last request time for the user
-        last_request_time[user_id] = current_time      
+        last_request_time[user_id] = current_time     
 
     bot_token = context.bot.token
 

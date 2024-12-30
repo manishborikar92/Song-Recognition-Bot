@@ -26,7 +26,7 @@ def download_instagram_reel(url):
         
         # Check if it's a Reel (video post)
         if post.is_video:
-            # Get video URL
+            # Get video URL (this should be the highest available resolution)
             video_url = post.video_url
             caption = post.caption if post.caption else "No caption"
             
@@ -47,6 +47,7 @@ def download_instagram_reel(url):
         else:
             raise ValueError("The provided URL does not point to a reel (video).")
     except Exception as e:
+        print(f"Error occurred in instagram.py: {e}")
         return None, None
 
 # # Example usage
