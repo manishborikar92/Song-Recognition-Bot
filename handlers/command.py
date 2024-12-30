@@ -22,7 +22,7 @@ async def help_command(update: Update, context: CallbackContext):
         "Here are the available commands and their usage:\n\n"
         "- <b>/start</b> - Start the bot and get a welcome message. 🤖✨\n"
         "- <b>/help</b> - Display this help message. ❓📖\n"
-        "- <b>/search</b> - Search for a song by name or artist (e.g., 'song name, artist name'). 🔍🎶\n"
+        "- <b>/search</b> - Search for a song by name or artist (e.g., 'song name artist name'). 🔍🎶\n"
         "- 📹 Share a video, audio, or voice message - The bot will recognize the song and provide details. 🎧🎵\n"
         "- 🌐 Send a YouTube or Instagram link - The bot will download the video, analyze it, and identify the song. 🎥🎶\n\n"
         "For support or issues, feel free to contact the developer! 😊\n\n"
@@ -38,7 +38,7 @@ async def search_command(update: Update, context: CallbackContext):
     """
     downloading_message = None
     if len(context.args) == 0:
-        await update.message.reply_text("🎵 Wanna find a song?\n\n Use: /search <song title> or /search <song title>, <artist name> 🔍✨")
+        await update.message.reply_text("🎵 Wanna find a song?\n\n Use: /search <song title> or /search <song title> <artist name> 🔍✨")
         return
 
     # Combine arguments and separate the title and artists by comma
