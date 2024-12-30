@@ -2,6 +2,7 @@ import os
 import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, CallbackContext
+from config import EXCEPTION_USER_IDS
 from downloader.song import download_song
 from utils.acrcloud import get_song_info
 from utils.cleardata import delete_all
@@ -136,3 +137,15 @@ async def search_command(update: Update, context: CallbackContext):
     
         finally:
             delete_all()
+
+async def delete_command(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    if int(user_id) in EXCEPTION_USER_IDS:
+        if delete_all():
+            await update.message.reply_text(
+                "<b>Data Deleted</b> 🗑",
+                parse_mode='HTML'
+            )
+    else:
+        await update.message.reply_text("❌")
+        await update.message.reply_text("<b>You are not the owner. Permission denied.</b>", parse_mode='HTML')
