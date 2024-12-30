@@ -1,7 +1,7 @@
 import os
 import logging
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
-from handlers.command import start, help, search
+from handlers.command import start_command, help_command, search_command
 from handlers.message import handle_message
 
 # Configure logging
@@ -28,9 +28,9 @@ def main():
 
     application = ApplicationBuilder().token(BOT_TOKEN).concurrent_updates(True).build()
 
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help))
-    application.add_handler(CommandHandler("search", search))
+    application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("search", search_command))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(MessageHandler(filters.VIDEO | filters.AUDIO | filters.VOICE, handle_message))
 
