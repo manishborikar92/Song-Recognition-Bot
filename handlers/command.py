@@ -19,12 +19,12 @@ async def help_command(update: Update, context: CallbackContext):
     help_text = (
         "<b>🔊 Song Recognition Bot Help</b>\n\n"
         "Here are the available commands and their usage:\n\n"
-        "- <b>/start</b> - Start the bot and get a welcome message.\n"
-        "- <b>/help</b> - Display this help message.\n"
-        "- <b>/search</b> - Search for a song by name or artist (e.g., 'song name, artist name').\n"
-        "- 📹 Share a video, audio, or voice message - The bot will recognize the song and provide details.\n"
-        "- 🌐 Send a YouTube or Instagram link - The bot will download the video, analyze it, and identify the song.\n\n"
-        "If you encounter any issues, feel free to contact the developer.\n\n"
+        "- <b>/start</b> - Start the bot and get a welcome message. 🤖✨\n"
+        "- <b>/help</b> - Display this help message. ❓📖\n"
+        "- <b>/search</b> - Search for a song by name or artist (e.g., 'song name, artist name'). 🔍🎶\n"
+        "- 📹 Share a video, audio, or voice message - The bot will recognize the song and provide details. 🎧🎵\n"
+        "- 🌐 Send a YouTube or Instagram link - The bot will download the video, analyze it, and identify the song. 🎥🎶\n\n"
+        "For support or issues, feel free to contact the developer! 😊\n\n"
         "<a href='https://t.me/ProjectON3'>ProjectON3</a>"
     )
     
@@ -34,14 +34,10 @@ async def help_command(update: Update, context: CallbackContext):
 async def search_command(update: Update, context: CallbackContext):
     """
     Handles the /search command to find and return matching songs from AcrCloud and download it.
-
-    Args:
-        update (telegram.Update): The incoming update from Telegram.
-        context (telegram.ext.ContextTypes.DEFAULT_TYPE): The context for the command.
     """
     downloading_message = None
     if len(context.args) == 0:
-        await update.message.reply_text("Usage: /search <song title> or /search <song title>, <artist name>")
+        await update.message.reply_text("📝 Usage: /search <song title> or /search <song title>, <artist name>")
         return
 
     # Combine arguments and separate the title and artists by comma
@@ -62,10 +58,10 @@ async def search_command(update: Update, context: CallbackContext):
         )
         song_data = await asyncio.to_thread(get_song_info, title, artists)
         if not song_data:
-            await update.message.reply_text("No matching song found.")
+            await update.message.reply_text("❌ No matching song found.")
             return
     except Exception as e:
-        await update.message.reply_text(f"Error searching for the song: {str(e)}")
+        await update.message.reply_text(f"⚠️ Error searching for the song: {str(e)}")
         print(f"Error searching for the song: {str(e)}")
         return
 
@@ -121,7 +117,7 @@ async def search_command(update: Update, context: CallbackContext):
             print("Song sent successfully.")  # Debugging log
         except Exception as e:
             print(f"Error sending audio: {e}")
-            await update.message.reply_text("An error occurred while sending the song.")
+            await update.message.reply_text("⚠️ An error occurred while sending the song.")
     else:
         try:
             print("File exceeds 50MB limit.")
