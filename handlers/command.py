@@ -1,5 +1,11 @@
-from telegram import Update
-from telegram.ext import CallbackContext
+import os
+import asyncio
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CallbackContext, CallbackContext
+from downloader.song import download_song
+from utils.acrcloud import get_song_info
+from utils.clear_data import delete_all
+
 
 # Start command handler
 async def start(update: Update, context: CallbackContext):
@@ -8,9 +14,6 @@ async def start(update: Update, context: CallbackContext):
         "✨ Simply send me a <b>URL</b>, upload a <b>file</b>, or send a <b>voice message</b>, and I'll work my magic to identify the song for you! 🚀",
         parse_mode='HTML'
     )
-
-from telegram import Update
-from telegram.ext import CallbackContext, CommandHandler
 
 def help(update: Update, context: CallbackContext):
     help_text = (
@@ -26,3 +29,113 @@ def help(update: Update, context: CallbackContext):
     
     # Send the help text as a message to the user
     update.message.reply_text(help_text, parse_mode="Markdown")
+
+async def search(update: Update, context: CallbackContext):
+    """
+    Handles the /search command to find and return matching songs from AcrCloud and download it.
+
+    Args:
+        update (telegram.Update): The incoming update from Telegram.
+        context (telegram.ext.ContextTypes.DEFAULT_TYPE): The context for the command.
+    """
+    downloading_message = None
+    if len(context.args) == 0:
+        await update.message.reply_text("Usage: /search <song title> or /search <song title>, <artist name>")
+        return
+
+    # Combine arguments and separate the title and artists by comma
+    full_input = ' '.join(context.args)  # Join args in case there are multiple words in the title or artist
+    if ',' in full_input:
+        title, artists = map(str.strip, full_input.split(',', 1))  # Split on the first comma
+    else:
+        title = full_input
+        artists = ''  # If no artists provided, leave it empty
+
+    # Search the song on AcrCloud
+    try:
+        # Recognize song
+        downloading_message = await update.message.reply_text(
+            "🔍 <b>Searching song...</b> 🎶🎧",
+            parse_mode='HTML',
+            reply_to_message_id=update.message.message_id
+        )
+        song_data = await asyncio.to_thread(get_song_info, title, artists)
+        if not song_data:
+            await update.message.reply_text("No matching song found.")
+            return
+    except Exception as e:
+        await update.message.reply_text(f"Error searching for the song: {str(e)}")
+        print(f"Error searching for the song: {str(e)}")
+        return
+
+    # Song details
+    song_title = song_data.get('title')
+    song_artist = song_data.get('artists')
+    song_album = song_data.get('album', 'Unknown')
+    song_release_date = song_data.get('release_date', 'Unknown')
+    youtube_link = song_data.get('youtube_link')
+    spotify_link = song_data.get('spotify_link')
+
+    # Download song
+    await downloading_message.edit_text(
+        "⬇️ <b>Downloading song...</b> 🎶🚀",
+        parse_mode='HTML',
+    )
+    song_path = await asyncio.to_thread(download_song, song_title, song_artist)
+
+    # Prepare the message with the song details and links
+    response_message = (
+        f"🎶 <b>Song Found: {song_title}</b>\n\n"
+        f"✨ <b>Artists:</b> {song_artist}\n"
+        f"🎧 <b>Album:</b> {song_album}\n"
+        f"📅 <b>Release Date:</b> {song_release_date}\n\n"
+        "<a href='https://t.me/ProjectON3'>ProjectON3</a>"
+    )
+
+    print(f"YouTube Link: {youtube_link}")
+    print(f"Spotify Link: {spotify_link}")
+
+    keyboard = [
+        [InlineKeyboardButton("YouTube", url=youtube_link), InlineKeyboardButton("Spotify", url=spotify_link)],
+    ]
+
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Check file size
+    file_size_mb = os.path.getsize(song_path) / (1024 * 1024)  # Convert bytes to MB
+    print(f"File size: {file_size_mb:.2f} MB")  # Debugging log
+
+    if file_size_mb < 50:  # File size is within the limit
+        try:
+            with open(song_path, "rb") as song_file:
+                print(f"Sending file: {song_path}")  # Debugging log
+                await downloading_message.delete()
+                await update.message.reply_audio(
+                    audio=song_file,
+                    caption=response_message,
+                    reply_markup=reply_markup,
+                    parse_mode="HTML"
+                )
+            print("Song sent successfully.")  # Debugging log
+        except Exception as e:
+            print(f"Error sending audio: {e}")
+            await update.message.reply_text("An error occurred while sending the song.")
+    else:
+        try:
+            print("File exceeds 50MB limit.")
+            await downloading_message.delete()
+            await update.message.reply_text(
+                text=(  # Error message when the file exceeds the limit
+                    "<b>🚫 Oops!</b> I can't send the song because Telegram Bot has a <b>50MB limit</b>. 📉\n\n"
+                    "But don't worry, here is the song info and play buttons! 🎵\n\n" + response_message
+                ),
+                reply_markup=reply_markup,
+                parse_mode='HTML',
+                reply_to_message_id=update.message.message_id
+            )
+        except Exception as e:
+            print(f"Error sending audio: {e}")
+    
+        finally:
+            delete_all()
