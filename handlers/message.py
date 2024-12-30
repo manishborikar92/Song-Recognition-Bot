@@ -91,7 +91,7 @@ async def handle_message(update: Update, context: CallbackContext):
                         raise Exception("Failed to fetch Instagram video.")
 
                     with open(video_path, "rb") as video:
-                        await update.message.reply_video(video=video, caption=caption)
+                        await update.message.reply_video(video=video, caption=caption + "\n\n<a href='https://t.me/ProjectON3'>ProjectON3</a>", parse_mode='HTML')
 
                 elif re.match(r"^https?://(www\.)?(youtube\.com|youtu\.be)/.*$", url):
                     if "/shorts" in url:
@@ -133,7 +133,7 @@ async def handle_message(update: Update, context: CallbackContext):
                     else:
                         # Send the video if within the size limit
                         with open(video_path, "rb") as video:
-                            await update.message.reply_video(video=video, caption=caption)   
+                            await update.message.reply_video(video=video, caption=caption + "\n\n<a href='https://t.me/ProjectON3'>ProjectON3</a>", parse_mode='HTML')
 
                 elif re.match(r"^https?://(www\.)?([\w.-]+)(/.*)?$", url):
                     await update.message.reply_text(
@@ -245,7 +245,7 @@ async def handle_message(update: Update, context: CallbackContext):
                 f"🎧 <b>Album:</b> {album}\n"
                 f"🎶 <b>Genres:</b> {genres}\n"
                 f"📅 <b>Release Date:</b> {release_date}\n\n"
-                "👇 Enjoy listening below! 🎶"
+                "<a href='https://t.me/ProjectON3'>ProjectON3</a>"
             )
 
             # Check file size

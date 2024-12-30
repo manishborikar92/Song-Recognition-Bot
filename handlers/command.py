@@ -37,7 +37,7 @@ async def search_command(update: Update, context: CallbackContext):
     """
     downloading_message = None
     if len(context.args) == 0:
-        await update.message.reply_text("🎵 Wanna find a song? Use: /search <song title> or /search <song title>, <artist name> 🔍✨")
+        await update.message.reply_text("🎵 Wanna find a song?\n\n Use: /search <song title> or /search <song title>, <artist name> 🔍✨")
         return
 
     # Combine arguments and separate the title and artists by comma
