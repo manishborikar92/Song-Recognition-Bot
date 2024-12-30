@@ -232,6 +232,7 @@ async def handle_message(update: Update, context: CallbackContext):
                     "🚫 <b>Song file not found.</b> I found the song but couldn't fetch the file 🥲",
                     parse_mode='HTML'
                 )
+                return
 
             # Send response
             keyboard = [

@@ -82,7 +82,10 @@ async def search_command(update: Update, context: CallbackContext):
     song_path = await asyncio.to_thread(download_song, song_title, song_artist)
 
     if not song_path:
-        await downloading_message.edit_text("❌ Oops! Can't download song.")
+        await update.message.reply_text(
+            "🚫 <b>Song file not found.</b> I found the song but couldn't fetch the file 🥲",
+            parse_mode='HTML'
+        )
         return
 
     # Prepare the message with the song details and links
