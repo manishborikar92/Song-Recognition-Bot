@@ -19,6 +19,15 @@ def download_song(title, artist):
         output_dir = "data/music"
         os.makedirs(output_dir, exist_ok=True)
 
+        # Generate a sanitized filename (avoid invalid characters for different OS)
+        sanitized_title = title.replace('/', '').replace('\\', '').replace(':', '')
+        file_path = os.path.join(output_dir, f"{sanitized_title}.mp3")
+
+        # If the song already exists, return the file path
+        if os.path.exists(file_path):
+            logging.info(f"Song already exists: {file_path}")
+            return file_path
+
         # Construct the search query
         query = f"{title} {artist} audio"
 
@@ -30,7 +39,7 @@ def download_song(title, artist):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': os.path.join(output_dir, f'{title}.%(ext)s'),
+            'outtmpl': os.path.join(output_dir, f'{sanitized_title}.%(ext)s'),
             'quiet': True,  # Reduce console output
             'noplaylist': True,
             'extractaudio': True,  # Avoid downloading video
@@ -40,11 +49,6 @@ def download_song(title, artist):
         # Download the song
         with YoutubeDL(ydl_opts) as ydl:
             result = ydl.extract_info(f"ytsearch:{query}", download=True)
-
-        # Get the downloaded file path
-        if 'entries' in result:
-            result = result['entries'][0]
-        file_path = os.path.join(output_dir, f"{title}.mp3")
 
         # Ensure the file exists and is not corrupt
         if not os.path.isfile(file_path):
@@ -67,10 +71,11 @@ def download_song(title, artist):
         return None
 
 
-# # Example usage
-# if __name__ == "__main__":
-#     try:
-#         song_path = download_song("Ishq Hai", "Mismatched - Cast/Anurag Saikia/Romy/Amarabha Banerjee/Varun Jain/Madhubanti Bagchi/Raj Shekhar")
-#         logging.info(f"Song downloaded to: {song_path}")
-#     except Exception as e:
-#         logging.info(f"Error: {e}")
+# Example usage
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    try:
+        song_path = download_song("Ishq Hai", "Mismatched - Cast/Anurag Saikia/Romy/Amarabha Banerjee/Varun Jain/Madhubanti Bagchi/Raj Shekhar")
+        logging.info(f"Song downloaded to: {song_path}")
+    except Exception as e:
+        logging.info(f"Error: {e}")
