@@ -67,10 +67,10 @@ def download_song(title, artist):
         return None
 
 
-# Example usage
-if __name__ == "__main__":
-    try:
-        song_path = download_song("Ishq Hai", "Mismatched - Cast/Anurag Saikia/Romy/Amarabha Banerjee/Varun Jain/Madhubanti Bagchi/Raj Shekhar")
-        logging.info(f"Song downloaded to: {song_path}")
-    except Exception as e:
-        logging.info(f"Error: {e}")
+# # Example usage
+# if __name__ == "__main__":
+#     try:
+#         song_path = download_song("Ishq Hai", "Mismatched - Cast/Anurag Saikia/Romy/Amarabha Banerjee/Varun Jain/Madhubanti Bagchi/Raj Shekhar")
+#         logging.info(f"Song downloaded to: {song_path}")
+#     except Exception as e:
+#         logging.info(f"Error: {e}")
