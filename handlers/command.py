@@ -37,7 +37,7 @@ async def search_command(update: Update, context: CallbackContext):
     """
     downloading_message = None
     if len(context.args) == 0:
-        await update.message.reply_text("📝 Usage: /search <song title> or /search <song title>, <artist name>")
+        await update.message.reply_text("🎵 Wanna find a song? Use: /search <song title> or /search <song title>, <artist name> 🔍✨")
         return
 
     # Combine arguments and separate the title and artists by comma
@@ -52,16 +52,16 @@ async def search_command(update: Update, context: CallbackContext):
     try:
         # Recognize song
         downloading_message = await update.message.reply_text(
-            "🔍 <b>Searching song...</b> 🎶🎧",
+            "🔍 <b>Hunting for the track...</b> 🎶🎧",
             parse_mode='HTML',
             reply_to_message_id=update.message.message_id
         )
         song_data = await asyncio.to_thread(get_song_info, title, artists)
         if not song_data:
-            await update.message.reply_text("❌ No matching song found.")
+            await update.message.reply_text("❌ Oops! No matching song found.")
             return
     except Exception as e:
-        await update.message.reply_text(f"⚠️ Error searching for the song: {str(e)}")
+        await update.message.reply_text(f"⚠️ Something went wrong while searching for the song: {str(e)}")
         print(f"Error searching for the song: {str(e)}")
         return
 
@@ -75,14 +75,14 @@ async def search_command(update: Update, context: CallbackContext):
 
     # Download song
     await downloading_message.edit_text(
-        "⬇️ <b>Downloading song...</b> 🎶🚀",
+        "⬇️ <b>Getting your jam...</b> 🎶🚀",
         parse_mode='HTML',
     )
     song_path = await asyncio.to_thread(download_song, song_title, song_artist)
 
     # Prepare the message with the song details and links
     response_message = (
-        f"🎶 <b>Song Found: {song_title}</b>\n\n"
+        f"🎶 <b>Found the track: {song_title}</b>\n\n"
         f"✨ <b>Artists:</b> {song_artist}\n"
         f"🎧 <b>Album:</b> {song_album}\n"
         f"📅 <b>Release Date:</b> {song_release_date}\n\n"
@@ -117,15 +117,15 @@ async def search_command(update: Update, context: CallbackContext):
             print("Song sent successfully.")  # Debugging log
         except Exception as e:
             print(f"Error sending audio: {e}")
-            await update.message.reply_text("⚠️ An error occurred while sending the song.")
+            await update.message.reply_text("⚠️ Oops! Something went wrong while sending the song.")
     else:
         try:
             print("File exceeds 50MB limit.")
             await downloading_message.delete()
             await update.message.reply_text(
                 text=(  # Error message when the file exceeds the limit
-                    "<b>🚫 Oops!</b> I can't send the song because Telegram Bot has a <b>50MB limit</b>. 📉\n\n"
-                    "But don't worry, here is the song info and play buttons! 🎵\n\n" + response_message
+                    "<b>🚫 Uh-oh!</b> I can't send the song because it's too big (>50MB). 📉\n\n"
+                    "But no worries, here’s all the details and the play buttons! 🎧🎶\n\n" + response_message
                 ),
                 reply_markup=reply_markup,
                 parse_mode='HTML',
