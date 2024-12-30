@@ -2,7 +2,7 @@ import os
 import logging
 from pydub import AudioSegment
 
-def convert_video_to_mp3(video_path, max_duration_minutes=2):
+def convert_video_to_mp3(video_path, max_duration_minutes=1):
     """
     Converts a video file to an MP3 audio file, trimming it to the specified duration if necessary.
 

@@ -35,7 +35,7 @@ Song-Recognition-Bot/
 │
 ├── utils/
 │   ├── audio_extractor.py     # Functions for audio extraction
-│   ├── acrcloud_handler.py    # Functions for song recognition
+│   ├── acrcloud.py            # Functions for song recognition
 │   └── cleardata.py           # Functions for cleaning temporary files
 │
 ├── bot.py                     # Main entry point for the bot

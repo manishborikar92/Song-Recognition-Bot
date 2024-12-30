@@ -4,7 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, CallbackContext
 from downloader.song import download_song
 from utils.acrcloud import get_song_info
-from utils.clear_data import delete_all
+from utils.cleardata import delete_all
 
 
 # Start command handler
