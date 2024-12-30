@@ -37,7 +37,7 @@ def download_song(title, artist):
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '192',
+                'preferredquality': '320',
             }],
             'outtmpl': os.path.join(output_dir, f'{sanitized_title}.%(ext)s'),
             'quiet': True,  # Reduce console output
