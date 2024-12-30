@@ -145,7 +145,8 @@ async def handle_message(update: Update, context: CallbackContext):
                 
                 else:
                     await update.message.reply_text(
-                        "🚫 <b>Hey!</b> Don’t send me text messages! Drop a <b>link</b>, <b>video</b>, or <b>audio</b> 🎶📹🎤, and I'll handle the rest!",
+                        "🚫 <b>Hey!</b> Don’t send me text messages! Drop a <b>link</b>, <b>video</b>, or <b>audio</b> 🎶📹🎤, and I'll handle the rest!\n\n"
+                        "If you're looking to identify a song, you can also try the <b>/search</b> command! Just type it with the song title and artist to get started. 🎶🔍",
                         parse_mode='HTML',
                         reply_to_message_id=update.message.message_id
                     )
@@ -271,7 +272,10 @@ async def handle_message(update: Update, context: CallbackContext):
                     )
 
     except Exception as e:
-        logging.error(f"Error: {e}")
+        logging.error(f"Error processing message: {e}")
+        if downloading_message:
+            await downloading_message.edit_text("❌ <b>Something went wrong!</b> Please try again later. 😔",
+                                                parse_mode='HTML')
 
     finally:
         delete_all()
