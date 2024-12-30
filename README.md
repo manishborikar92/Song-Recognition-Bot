@@ -1,15 +1,15 @@
 # 🎵 Song Recognition Bot
 
-A Telegram bot that helps you identify songs from Instagram reels by analyzing audio content using the ACRCloud API. The bot downloads the reel, extracts audio, and provides song details such as title, artist, album, release date, and YouTube link.
+Unleash the power of audio recognition with the **Song Recognition Bot**! Designed for Telegram, this bot lets you effortlessly identify songs from Instagram links, YouTube links, videos, audio files, or voice messages. By utilizing the ACRCloud API, the bot extracts audio, recognizes the track, and delivers detailed information like title, artist, album, release date, and streaming links for platforms such as YouTube and Spotify. Plus, the `/search` command allows users to download songs directly.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- Download Instagram reels from links shared by users.
-- Extract audio from the reels.
-- Identify songs using the ACRCloud API.
-- Share song details with users, including title, artist, album, and release date.
+- **Video Downloads Made Simple:** Easily download videos from shared links.
+- **Accurate Song Identification:** Powered by the advanced ACRCloud API for precise results.
+- **Detailed Song Information:** Receive metadata including title, artist, album, release date, and streaming links.
+- **Song Search Functionality:** Quickly search and fetch song files with the `/search` command.
 
 ---
 
@@ -17,26 +17,38 @@ A Telegram bot that helps you identify songs from Instagram reels by analyzing a
 
 ```plaintext
 Song-Recognition-Bot/
-│
-├── bot.py                   # Main entry point for the bot
-├── .env                     # Environment variables
-├── requirements.txt         # List of Python dependencies
-├── utils/
-│   ├── instagram.py         # Functions to fetch Instagram video and caption
-│   ├── audio_processing.py  # Functions to download and process audio
-│   ├── acrcloud_handler.py          # Functions to interact with ACRCloud API
-│   ├── downloader.py           # Reusable utility functions
-│   ├── cleardata.py           # Reusable utility functions
-│
+│  
 ├── data/
-│   ├── downloads/           # Folder for temporarily storing video and audio files
+│   ├── audios/                # Temporary storage for audio files
+│   ├── music/                 # Temporary storage for song files
+│   └── videos/                # Temporary storage for video files
 │
-└── README.md                # Documentation about the project
+├── downloaders/
+│   ├── instagram.py           # Functions for downloading Instagram videos and captions
+│   ├── youtube.py             # Functions for downloading YouTube videos and captions
+│   └── song.py                # Functions for downloading song files  
+│
+├── handlers/
+│   ├── command.py             # Functions to handle commands
+│   ├── message.py             # Functions to handle messages
+│   └── check_membership.py    # Functions to manage Telegram channel membership
+│
+├── utils/
+│   ├── audio_extractor.py     # Functions for audio extraction
+│   ├── acrcloud_handler.py    # Functions for song recognition
+│   └── cleardata.py           # Functions for cleaning temporary files
+│
+├── bot.py                     # Main entry point for the bot
+├── config.py                  # Configuration settings
+├── Dockerfile                 # Dockerfile for containerization
+├── requirements.txt           # Python dependencies
+├── .env                       # Environment variables
+└── README.md                  # Documentation
 ```
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ How to Set Up
 
 ### Prerequisites
 
@@ -45,30 +57,37 @@ Song-Recognition-Bot/
 - Telegram Bot API token
 - [FFmpeg](https://ffmpeg.org/) installed on your system
 
-### 1️⃣ Clone the Repository
+### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/music-finder-bot.git
-cd music-finder-bot
+git clone https://github.com/manishborikar92/Song-Recognition-Bot.git
+cd Song-Recognition-Bot
 ```
 
-### 2️⃣ Install Dependencies
+### Step 2: Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Configure Credentials
+### Step 3: Configure Environment Variables
 
-- **ACRCloud**: Add your credentials in `bot.py`:
-  ```python
-  HOST = "https://identify-ap-southeast-1.acrcloud.com"
-  ACCESS_KEY = "your_acrcloud_access_key"
-  ACCESS_SECRET = "your_acrcloud_access_secret"
-  ```
-- **Telegram Bot Token**: Replace `"your_bot_token"` in `bot.py` with your bot token.
+Create a `.env` file in the root directory and add the following:
 
-### 4️⃣ Run the Bot
+```env
+ACR_HOST=your_acr_host_url
+ACR_ACCESS_KEY=your_acrcloud_access_key
+ACR_ACCESS_SECRET=your_acrcloud_access_secret
+ACR_ENDPOINT_URL=https://eu-api-v2.acrcloud.com/api/external-metadata/tracks
+ACR_BEARER_TOKEN=your_acrcloud_bearer_token
+BOT_TOKEN=your_telegram_bot_token
+GROUP_ID=-1002267600531
+CHANNEL_ID=-1002213319552
+EXCEPTION_USER_ID=your_user_id
+WEBHOOK_URL=<insert_render_or_railway_website_url_here>
+```
+
+### Step 4: Run the Bot
 
 ```bash
 python bot.py
@@ -76,35 +95,70 @@ python bot.py
 
 ---
 
+## 🐳 Deploying with Docker (Optional)
+
+### Step 1: Build the Docker Image
+
+```bash
+docker build -t song-recognition-bot .
+```
+
+### Step 2: Run the Container
+
+```bash
+docker run -d --env-file .env --name song-recognition-bot song-recognition-bot
+```
+
+---
+
+## 🌐 Deploying on Railway
+
+1. Create a new project on [Railway](https://railway.app/).
+2. Connect your GitHub repository.
+3. Add environment variables in the "Settings" section using the `.env` file values.
+4. Deploy the project.
+
+---
+
+## 🌐 Deploying on Render
+
+1. Create a new service on [Render](https://render.com/).
+2. Select your GitHub repository.
+3. Add environment variables in the "Environment" section using the `.env` file values.
+4. Deploy the project.
+
+---
+
 ## 🧪 Testing
 
-Run the unit tests to ensure the components work as expected:
+Ensure all components are functioning as expected by running:
 
 ```bash
 python -m unittest discover
 ```
 
-## 📖 Usage Instructions
+## 📖 How to Use
 
 1. Start the bot on Telegram by sending `/start`.
-2. Share an Instagram reel link with the bot.
-3. The bot will:
-   - Download the reel.
-   - Extract audio from the video.
-   - Identify the song and share the details with you.
+2. Share a link (Instagram or YouTube), video, audio, or voice message with the bot.
+3. Use `/search <song name, artist name>` to search for a specific song.
+4. The bot will:
+   - Download the video.
+   - Extract audio.
+   - Identify the song and share it along with its details.
 
 ---
 
 ## 🛡️ License
 
-This project is licensed under the [GNU GENERAL PUBLIC LICENSE](LICENSE).
+This project is licensed under the [GNU General Public License](LICENSE).
 
 ---
 
 ## 🙌 Acknowledgements
 
-- [Instaloader](https://instaloader.github.io/) for Instagram reel downloads.
-- [ACRCloud](https://www.acrcloud.com/) for song recognition.
-- [FFmpeg](https://ffmpeg.org/) for audio extraction.
+- [ProjectON3](https://t.me/ProjectON3) - Official Telegram channel for bots.
+- [ACRCloud](https://www.acrcloud.com/) - Song recognition API.
+- [FFmpeg](https://ffmpeg.org/) - Audio extraction tool.
 
 ---

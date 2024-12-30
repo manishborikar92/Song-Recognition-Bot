@@ -14,7 +14,7 @@ def download_song(title, artist):
         str: The file path of the downloaded MP3.
     """
     # Ensure the output directory exists
-    output_dir = "temp/audios"
+    output_dir = "data/music"
     os.makedirs(output_dir, exist_ok=True)
 
     # Construct the search query
@@ -32,7 +32,7 @@ def download_song(title, artist):
         'quiet': True,  # Reduce console output
         'noplaylist': True,
         'extractaudio': True,  # Avoid downloading video
-        'cookiefile': 'youtube_cookies.txt',
+        'cookiefile': 'cookies.txt',
     }
 
     # Download the song
