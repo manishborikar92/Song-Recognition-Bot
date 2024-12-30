@@ -59,10 +59,10 @@ async def search_command(update: Update, context: CallbackContext):
         )
         song_data = await asyncio.to_thread(get_song_info, title, artists)
         if not song_data:
-            await update.message.reply_text("❌ Oops! No matching song found.")
+            await downloading_message.edit_text("❌ Oops! No matching song found.")
             return
     except Exception as e:
-        await update.message.reply_text(f"⚠️ Something went wrong while searching for the song: {str(e)}")
+        await downloading_message.edit_text(f"⚠️ Something went wrong while searching for the song: {str(e)}")
         print(f"Error searching for the song: {str(e)}")
         return
 
@@ -80,6 +80,10 @@ async def search_command(update: Update, context: CallbackContext):
         parse_mode='HTML',
     )
     song_path = await asyncio.to_thread(download_song, song_title, song_artist)
+
+    if not song_path:
+        await downloading_message.edit_text("❌ Oops! Can't download song.")
+        return
 
     # Prepare the message with the song details and links
     response_message = (

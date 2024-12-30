@@ -14,52 +14,57 @@ def download_song(title, artist):
     Returns:
         str: The file path of the downloaded MP3.
     """
-    # Ensure the output directory exists
-    output_dir = "data/music"
-    os.makedirs(output_dir, exist_ok=True)
+    try:
+        # Ensure the output directory exists
+        output_dir = "data/music"
+        os.makedirs(output_dir, exist_ok=True)
 
-    # Construct the search query
-    query = f"{title} {artist} audio"
+        # Construct the search query
+        query = f"{title} {artist} audio"
 
-    # Configure yt-dlp options for faster downloads
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'outtmpl': os.path.join(output_dir, f'{title}.%(ext)s'),
-        'quiet': True,  # Reduce console output
-        'noplaylist': True,
-        'extractaudio': True,  # Avoid downloading video
-        'cookiefile': 'cookies.txt',
-    }
+        # Configure yt-dlp options for faster downloads
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': os.path.join(output_dir, f'{title}.%(ext)s'),
+            'quiet': True,  # Reduce console output
+            'noplaylist': True,
+            'extractaudio': True,  # Avoid downloading video
+            'cookiefile': 'cookies.txt',
+        }
 
-    # Download the song
-    with YoutubeDL(ydl_opts) as ydl:
-        result = ydl.extract_info(f"ytsearch:{query}", download=True)
+        # Download the song
+        with YoutubeDL(ydl_opts) as ydl:
+            result = ydl.extract_info(f"ytsearch:{query}", download=True)
 
-    # Get the downloaded file path
-    if 'entries' in result:
-        result = result['entries'][0]
-    file_path = os.path.join(output_dir, f"{title}.mp3")
+        # Get the downloaded file path
+        if 'entries' in result:
+            result = result['entries'][0]
+        file_path = os.path.join(output_dir, f"{title}.mp3")
 
-    # Ensure the file exists and is not corrupt
-    if not os.path.isfile(file_path):
-        raise FileNotFoundError("The MP3 file was not downloaded correctly.")
+        # Ensure the file exists and is not corrupt
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError("The MP3 file was not downloaded correctly.")
 
-    # Add artist name as tag using eyed3
-    audiofile = eyed3.load(file_path)
-    audiofile.tag.artist = artist  # Set artist tag
-    audiofile.tag.save()  # Save changes
+        # Add artist name as tag using eyed3
+        audiofile = eyed3.load(file_path)
+        audiofile.tag.artist = artist  # Set artist tag
+        audiofile.tag.save()  # Save changes
 
-    # Test if the file can be opened
-    with open(file_path, "rb") as song_file:
-        song_file.read(1)  # Read the first byte to ensure the file is valid
+        # Test if the file can be opened
+        with open(file_path, "rb") as song_file:
+            song_file.read(1)  # Read the first byte to ensure the file is valid
 
-    logging.info('Song Downloaded')
-    return file_path
+        logging.info('Song Downloaded')
+        return file_path
+    
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        return None
 
 
 # # Example usage
