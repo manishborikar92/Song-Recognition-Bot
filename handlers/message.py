@@ -28,7 +28,7 @@ async def handle_message(update: Update, context: CallbackContext):
 
 # Check if the user is in the exception list
     if int(user_id) in EXCEPTION_USER_IDS:
-        print('Developer')  # Log admin behavior
+        logging.info('Developer')  # Log admin behavior
     else:
         # Rate-limiting logic for other users
         current_time = time.time()

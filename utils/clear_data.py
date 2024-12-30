@@ -1,11 +1,11 @@
-import os, shutil
+import os, shutil, logging
 
 def delete_all():
     folders = ['data', 'downloader/__pycache__', 'handlers/__pycache__', 'utils/__pycache__', '__pycache__']  # Predefined folders
     for folder in folders:
         if os.path.exists(folder):
             [shutil.rmtree(p) if os.path.isdir(p) else os.remove(p) for p in (os.path.join(folder, f) for f in os.listdir(folder))]
-    print('File Deleted')
+    logging.info('File Deleted')
     return True
 
 def delete_cache():
@@ -13,5 +13,5 @@ def delete_cache():
     for folder in folders:
         if os.path.exists(folder):
             [shutil.rmtree(p) if os.path.isdir(p) else os.remove(p) for p in (os.path.join(folder, f) for f in os.listdir(folder))]
-    print('Cache Deleted')
+    logging.info('Cache Deleted')
 # delete_all()

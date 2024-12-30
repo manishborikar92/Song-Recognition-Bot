@@ -33,7 +33,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(MessageHandler(filters.VIDEO | filters.AUDIO | filters.VOICE, handle_message))
 
-    print("Bot is running...")
+    logging.info("Bot is running...")
     application.run_polling()
 
 if __name__ == "__main__":

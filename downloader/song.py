@@ -1,6 +1,7 @@
 import os
-from yt_dlp import YoutubeDL
 import eyed3
+import logging
+from yt_dlp import YoutubeDL
 
 def download_song(title, artist):
     """
@@ -57,7 +58,7 @@ def download_song(title, artist):
     with open(file_path, "rb") as song_file:
         song_file.read(1)  # Read the first byte to ensure the file is valid
 
-    print('Song Downloaded')
+    logging.info('Song Downloaded')
     return file_path
 
 
@@ -65,6 +66,6 @@ def download_song(title, artist):
 # if __name__ == "__main__":
 #     try:
 #         song_path = download_song("Ishq Hai", "Mismatched - Cast/Anurag Saikia/Romy/Amarabha Banerjee/Varun Jain/Madhubanti Bagchi/Raj Shekhar")
-#         print(f"Song downloaded to: {song_path}")
+#         logging.info(f"Song downloaded to: {song_path}")
 #     except Exception as e:
-#         print(f"Error: {e}")
+#         logging.info(f"Error: {e}")

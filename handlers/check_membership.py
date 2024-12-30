@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from telegram.ext import ApplicationBuilder
 from config import GROUP_ID, CHANNEL_ID
 
@@ -18,5 +19,5 @@ async def check_membership(user_id: int, bot_token: str):
         
         return is_member_of_group and is_member_of_channel
     except Exception as e:
-        print(f"Error during membership check: {e}")
+        logging.info(f"Error during membership check: {e}")
         return False  # Assume not a member if an error occurs
