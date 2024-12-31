@@ -1,4 +1,5 @@
 import os
+import re
 import eyed3
 import logging
 from yt_dlp import YoutubeDL
@@ -20,7 +21,7 @@ def download_song(title, artist):
         os.makedirs(output_dir, exist_ok=True)
 
         # Generate a sanitized filename (avoid invalid characters for different OS)
-        sanitized_title = title.replace('/', '').replace('\\', '').replace(':', '')
+        sanitized_title = re.sub(r'[^a-zA-Z0-9 ()\-.,]', '', title)
         file_path = os.path.join(output_dir, f"{sanitized_title}.mp3")
 
         # If the song already exists, return the file path

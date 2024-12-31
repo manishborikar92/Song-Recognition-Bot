@@ -55,7 +55,7 @@ def download_youtube_video(url, max_filesize_mb=100):
             filesize_bytes = info_dict.get('filesize') or info_dict.get('filesize_approx', 0)
             if filesize_bytes > max_filesize_mb * 1024 * 1024:
                 logging.warning(f"Video size exceeds {max_filesize_mb}MB. Skipping download.")
-                return None, f"Video size exceeds {max_filesize_mb}MB."
+                return None, "size exceeds"
 
             # Download the video
             logging.info("Downloading video...")

@@ -45,11 +45,39 @@ def convert_video_to_mp3(video_path, max_duration_minutes=1):
     except FileNotFoundError:
         error_msg = f"File not found: {video_path}"
         logging.error(error_msg)
-        return error_msg
+        return None
     except Exception as e:
         error_msg = f"An error occurred: {e}"
         logging.error(error_msg)
-        return error_msg
+        return None
+
+def trim_audio(audio_path, max_duration_minutes=1):
+    try:
+        # Define the directory to save audio files
+        save_dir = 'data/audios'
+        os.makedirs(save_dir, exist_ok=True)  # Ensure directory exists
+
+        # Load the audio file
+        audio = AudioSegment.from_file(audio_path)
+
+        # Check and trim audio if it's longer than the maximum allowed duration
+        max_duration_ms = max_duration_minutes * 60 * 1000  # Convert minutes to milliseconds
+        if len(audio) > max_duration_ms:
+            logging.info(f"Audio duration exceeds {max_duration_minutes} minutes. Trimming...")
+            audio = audio[:max_duration_ms]  # Trim the audio
+
+        # Create the output path
+        output_path = os.path.join(save_dir, os.path.basename(audio_path))
+
+        # Export the trimmed audio as mp3
+        audio.export(output_path, format='mp3')
+        logging.info(f"Trimmed audio saved at: {output_path}")
+        return output_path
+
+    except Exception as e:
+        error_msg = f"An error occurred while trimming audio: {e}"
+        logging.error(error_msg)
+        return None
 
 # # Example usage
 # video_path = 'data/videos/Q-FzRg6V-b4.mp4'

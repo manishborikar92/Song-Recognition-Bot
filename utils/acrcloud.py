@@ -14,7 +14,7 @@ session = requests.Session()
 
 def recognize_song(audio_path):
     """
-    Recognize a song using ACRCloud. Automatically trims audio if it's longer than 1 minute.
+    Recognize a song using ACRCloud.
 
     Args:
         audio_path (str): The path to the audio file.
@@ -30,15 +30,6 @@ def recognize_song(audio_path):
     access_secret = ACR_ACCESS_SECRET
 
     try:
-        # Check and trim audio if necessary
-        audio = AudioSegment.from_file(audio_path)
-        if len(audio) > 60000:  # Check if audio is longer than 60 seconds
-            logging.info("Audio is longer than 1 minute. Trimming to 20 seconds.")
-            trimmed_audio_path = os.path.splitext(audio_path)[0] + "_trimmed.mp3"
-            trimmed_audio = audio[10000:30000]  # Extract 10th to 30th second (20 seconds)
-            trimmed_audio.export(trimmed_audio_path, format="mp3")
-            audio_path = trimmed_audio_path  # Use trimmed audio for recognition
-
         # Prepare request data
         http_method = "POST"
         http_uri = "/v1/identify"

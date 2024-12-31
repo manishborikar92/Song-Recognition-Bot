@@ -141,7 +141,7 @@ python -m unittest discover
 
 1. Start the bot on Telegram by sending `/start`.
 2. Share a link (Instagram or YouTube), video, audio, or voice message with the bot.
-3. Use `/search <song name artist name>` to search for a specific song.
+3. Use `/search <song name - artist name>` to search for a specific song.
 4. The bot will:
    - Download the video.
    - Extract audio.
