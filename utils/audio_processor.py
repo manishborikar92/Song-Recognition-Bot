@@ -78,8 +78,3 @@ def trim_audio(audio_path, max_duration_minutes=1):
         error_msg = f"An error occurred while trimming audio: {e}"
         logging.error(error_msg)
         return None
-
-# # Example usage
-# video_path = 'data/videos/Q-FzRg6V-b4.mp4'
-# audio_path = convert_video_to_mp3(video_path)
-# logging.info(f"Converted audio path: {audio_path}")

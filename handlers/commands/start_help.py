@@ -10,6 +10,12 @@ db = DBManager()
 
 # Start command handler
 async def start_command(update: Update, context: CallbackContext):
+    chat_type = update.message.chat.type
+
+    # Ignore messages from groups, supergroups, and channels
+    if chat_type in ["group", "supergroup", "channel"]:
+        return
+    
     user_id = update.message.from_user.id
     user_name = update.message.from_user.full_name
     db.add_user(user_id, user_name)
@@ -22,6 +28,12 @@ async def start_command(update: Update, context: CallbackContext):
 
 
 async def help_command(update: Update, context: CallbackContext):
+    chat_type = update.message.chat.type
+
+    # Ignore messages from groups, supergroups, and channels
+    if chat_type in ["group", "supergroup", "channel"]:
+        return
+    
     user_id = update.message.from_user.id
     user_name = update.message.from_user.full_name
 

@@ -4,7 +4,7 @@ from flask import Flask
 from threading import Thread
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 from config import BOT_TOKEN
-from handlers.message import handle_message
+from handlers.messages.message import handle_message
 from handlers.commands.start_help import start_command, help_command
 from handlers.commands.search import search_command
 from handlers.commands.broadcast import broadcast_command

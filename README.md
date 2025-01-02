@@ -20,20 +20,24 @@ Unleash the power of audio recognition with the **Song Recognition Bot**! Design
 ```plaintext
 Song-Recognition-Bot/
 │  
-├── data/
+├── data/                      # Temporary storage for media files
 │   ├── audios/                # Temporary storage for audio files
 │   ├── music/                 # Temporary storage for song files
 │   └── videos/                # Temporary storage for video files
 │
-├── database/
+├── database/                  # Database integration
 │   └── db_manager.py          # Functions for PostgreSQL integration
 │
-├── downloaders/
+├── decorators/                # Reusable decorators for handlers
+│   ├── membership.py          # Functions for managing Telegram channel membership
+│   └── rate_limiter.py        # Functions for rate limiting
+│
+├── downloaders/               # Media download utilities
 │   ├── instagram.py           # Functions for downloading Instagram videos and captions
 │   ├── youtube.py             # Functions for downloading YouTube videos and captions
 │   └── song.py                # Functions for downloading song files  
 │
-├── handlers/
+├── handlers/                  # Core bot handlers
 │   ├── commands/              # Folder for command handlers
 │   │   ├── broadcast.py       # Handles broadcast messages to all users
 │   │   ├── delete.py          # Handles user and data deletion commands
@@ -41,11 +45,11 @@ Song-Recognition-Bot/
 │   │   ├── star_help.py       # Handles /start and /help commands
 │   │   └── user_info.py       # Handles fetching user information commands
 │   │
-│   ├── message.py             # Functions to handle various messages
-│   └── membership.py          # Functions to manage Telegram channel membership
+│   └── messages/              # Folder for message handling
+│       └── message.py         # Functions to handle various messages
 │
-├── utils/
-│   ├── audio_preprocessing.py # Functions for audio extraction and trimming
+├── utils/                     # Utility scripts
+│   ├── audio_processor.py     # Functions for audio extraction and trimming
 │   ├── acrcloud.py            # Functions for song recognition
 │   ├── cleardata.py           # Functions for cleaning temporary files
 │   ├── send_file.py           # Functions for sending song files to users

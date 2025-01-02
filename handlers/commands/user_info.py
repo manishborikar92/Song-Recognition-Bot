@@ -9,6 +9,12 @@ from database.db_manager import DBManager
 db = DBManager()
 
 async def getusers_command(update: Update, context: CallbackContext):
+    chat_type = update.message.chat.type
+
+    # Ignore messages from groups, supergroups, and channels
+    if chat_type in ["group", "supergroup", "channel"]:
+        return
+    
     user_id = update.message.from_user.id
     if int(user_id) in EXCEPTION_USER_IDS:
         users = db.get_all_users()
@@ -36,6 +42,12 @@ async def getusers_command(update: Update, context: CallbackContext):
 
 
 async def getinfo_command(update: Update, context: CallbackContext):
+    chat_type = update.message.chat.type
+
+    # Ignore messages from groups, supergroups, and channels
+    if chat_type in ["group", "supergroup", "channel"]:
+        return
+    
     user_id = update.message.from_user.id
     if int(user_id) in DEVELOPERS:
         if not context.args:
@@ -67,6 +79,12 @@ async def getinfo_command(update: Update, context: CallbackContext):
         await update.message.reply_text("❌ You do not have permission to use this command.")
 
 async def history_command(update: Update, context: CallbackContext):
+    chat_type = update.message.chat.type
+
+    # Ignore messages from groups, supergroups, and channels
+    if chat_type in ["group", "supergroup", "channel"]:
+        return
+    
     user_id = update.message.from_user.id
     if int(user_id) in EXCEPTION_USER_IDS:
         history = db.get_user_history(user_id)

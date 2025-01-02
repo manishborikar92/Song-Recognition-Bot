@@ -77,8 +77,3 @@ def download_instagram_reel(url):
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         return None, f"Unexpected error: {e}"
-
-# Example usage
-# test_url = "https://www.instagram.com/reel/DDMhHzkT6m3/"
-# video_path, caption = download_instagram_reel(test_url)
-# logging.info(f"Downloaded video path: {video_path}\nCaption: {caption}")

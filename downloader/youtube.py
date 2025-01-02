@@ -74,8 +74,3 @@ def download_youtube_video(url, max_filesize_mb=100):
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None, str(e)
-
-# # Example usage
-# test_url = "https://youtu.be/Q-FzRg6V-b4"
-# video_path, description = download_youtube_video(test_url)
-# logging.info(f"Downloaded video path: {video_path}\nDescription: {description}")

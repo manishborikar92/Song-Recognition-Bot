@@ -8,20 +8,27 @@ from utils.acrcloud import get_song_info
 from utils.send_file import sendsong
 from utils.cleardata import delete_cache, delete_file
 from database.db_manager import DBManager
-from utils.rate_limiter import RateLimiter
+from decorator.rate_limiter import RateLimiter
+from decorator.membership import membership_check_decorator
 
 # Initialize the database manager
 db = DBManager()
 
 # Initialize the rate limiter (1 request per 60 seconds)
-rate_limiter = RateLimiter(limit=1, interval=10, exception_user_ids=EXCEPTION_USER_IDS)
+rate_limiter = RateLimiter(limit=1, interval=60, exception_user_ids=EXCEPTION_USER_IDS)
 
+@membership_check_decorator()
 @rate_limiter.rate_limit_decorator(user_id_arg_name="user_id")
 async def search_command(update: Update, context: CallbackContext):
     try:
         user_id = update.message.from_user.id
         user_name = update.message.from_user.full_name
         user_input = update.message.text
+        chat_type = update.message.chat.type
+
+        # Ignore messages from groups, supergroups, and channels
+        if chat_type in ["group", "supergroup", "channel"]:
+            return
 
         # Add the user to the database if they don't exist
         if not db.user_exists(user_id):

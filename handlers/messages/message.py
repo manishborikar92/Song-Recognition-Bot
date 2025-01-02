@@ -9,74 +9,34 @@ from config import GROUP_URL, CHANNEL_URL, EXCEPTION_USER_IDS, USER_RATE_LIMIT, 
 from downloader.instagram import download_instagram_reel
 from downloader.song import download_song
 from downloader.youtube import download_youtube_video
-from handlers.membership import check_membership
+from decorator.membership import membership_check_decorator
 from utils.acrcloud import recognize_song
 from utils.send_file import sendsong
-from utils.audio_preprocessing import convert_video_to_mp3, trim_audio
+from utils.audio_processor import convert_video_to_mp3, trim_audio
 from utils.cleardata import delete_cache, delete_file, delete_all
 from database.db_manager import DBManager
+from decorator.rate_limiter import RateLimiter
 
 # Initialize the database manager
 db = DBManager()
 
-# Handle user messages
+# Initialize the rate limiter (1 request per 60 seconds)
+rate_limiter = RateLimiter(limit=1, interval=60, exception_user_ids=EXCEPTION_USER_IDS)
+
+@membership_check_decorator()
+@rate_limiter.rate_limit_decorator(user_id_arg_name="user_id")
 async def handle_message(update: Update, context: CallbackContext):
+    downloading_message = None
     user_id = update.message.from_user.id
     user_name = update.message.from_user.full_name
-
-    if not db.user_exists(user_id):
-        db.add_user(user_id, user_name)
-        
-    downloading_message = None
-
-    user_id = update.message.from_user.id
     chat_type = update.message.chat.type
 
     # Ignore messages from groups, supergroups, and channels
     if chat_type in ["group", "supergroup", "channel"]:
         return
 
-    # Check if user is in the exception list
-    if int(user_id) in EXCEPTION_USER_IDS:
-        logging.info('Developer')  # Log admin behavior
-    else:
-        # Rate-limiting for other users
-        current_time = time.time()
-        if user_id in last_request_time and current_time - last_request_time[user_id] < USER_RATE_LIMIT:
-            remaining_time = USER_RATE_LIMIT - (current_time - last_request_time[user_id])
-            await update.message.reply_text(
-                f"\u23f3 <b>Hold up!</b> Please wait <b>{remaining_time:.0f} seconds</b> before making your next request. ⏳",
-                parse_mode='HTML'
-            )
-            return
-
-        # Update last request time
-        last_request_time[user_id] = current_time
-
-    bot_token = context.bot.token
-
-    try:
-        is_member = await check_membership(user_id, bot_token)
-    except Exception as e:
-        await update.message.reply_text(
-            "<b>Oops!</b> 😔 I'm having trouble checking your membership. Try again later! ⏳",
-            parse_mode='HTML',  # HTML formatting
-            reply_to_message_id=update.message.message_id
-        )
-        return
-
-    if not is_member:
-        buttons = [
-            [InlineKeyboardButton("Join Group", url=GROUP_URL)],
-            [InlineKeyboardButton("Join Channel", url=CHANNEL_URL)],
-        ]
-        reply_markup = InlineKeyboardMarkup(buttons)
-        await update.message.reply_text(
-            "🚫 <b>You gotta join our group and channel to use this bot!</b> Hit those buttons below to join. 🙏",
-            reply_markup=reply_markup,
-            parse_mode='HTML'
-        )
-        return
+    if not db.user_exists(user_id):
+        db.add_user(user_id, user_name)
 
     try:
         # URL input

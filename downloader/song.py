@@ -70,13 +70,3 @@ def download_song(title, artist):
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None
-
-
-# # Example usage
-# if __name__ == "__main__":
-#     logging.basicConfig(level=logging.INFO)
-#     try:
-#         song_path = download_song("Ishq Hai", "Mismatched - Cast/Anurag Saikia/Romy/Amarabha Banerjee/Varun Jain/Madhubanti Bagchi/Raj Shekhar")
-#         logging.info(f"Song downloaded to: {song_path}")
-#     except Exception as e:
-#         logging.info(f"Error: {e}")
