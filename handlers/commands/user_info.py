@@ -22,7 +22,6 @@ async def getusers_command(update: Update, context: CallbackContext):
             await update.message.reply_text("❌ No users found.")
             return
 
-        # Directory to save videos
         save_dir = 'data/pdf'
         os.makedirs(save_dir, exist_ok=True)
             
@@ -60,7 +59,6 @@ async def getinfo_command(update: Update, context: CallbackContext):
             await update.message.reply_text("❌ No history found for the specified user.")
             return
 
-        # Directory to save videos
         save_dir = 'data/pdf'
         os.makedirs(save_dir, exist_ok=True)
 
@@ -92,7 +90,6 @@ async def history_command(update: Update, context: CallbackContext):
             await update.message.reply_text("❌ You have no history recorded.")
             return
 
-        # Directory to save videos
         save_dir = 'data/pdf'
         os.makedirs(save_dir, exist_ok=True)
 

@@ -1,7 +1,9 @@
+import os
 from telegram import Update
 from telegram.ext import CallbackContext
 from config import EXCEPTION_USER_IDS, DEVELOPERS
 from utils.cleardata import delete_all
+from utils.pdf_generator import create_pdf
 from database.db_manager import DBManager
 
 # Initialize the database manager
@@ -46,11 +48,27 @@ async def delfiles_command(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     if int(user_id) in DEVELOPERS:
         results = delete_all()
+
+        # save_dir = 'data/pdf'
+        # os.makedirs(save_dir, exist_ok=True)
+
+        # content = [(key, value) for key, value in results.items()]
+        # headers = ["Folder", "Status"]
+        # pdf_path = f"{save_dir}/deletion_summary.pdf"
+        # create_pdf(pdf_path, "Deletion Summary", headers, content)
+
+        # await update.message.reply_document(
+        #     document=open(pdf_path, 'rb'),
+        #     filename=pdf_path,
+        #     caption="📄 Deletion Summary"
+        # )
+        # os.remove(pdf_path)
+
         message = "<b>Deletion Summary:</b>\n\n"
         for folder, status in results.items():
             message += f"• {folder}: {status.capitalize()}\n\n"
         await update.message.reply_text(message, parse_mode='HTML')
-        await update.message.reply_text("✅ All user data has been deleted.")
+        await update.message.reply_text("✅ All storage data has been deleted.")
     else:
         await update.message.reply_text("❌")
         await update.message.reply_text(

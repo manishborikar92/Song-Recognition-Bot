@@ -36,7 +36,10 @@ def delete_folders(folders):
 def delete_all():
     """Deletes all predefined folders and their contents."""
     folders = [
-        'data',
+        'data/audios',
+        'data/videos',
+        'data/music',
+        'data/pdf',
         'database/__pycache__',
         'decorator/__pycache__',
         'downloader/__pycache__',
