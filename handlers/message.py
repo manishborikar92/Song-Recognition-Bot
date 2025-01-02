@@ -9,14 +9,24 @@ from config import GROUP_URL, CHANNEL_URL, EXCEPTION_USER_IDS, USER_RATE_LIMIT, 
 from downloader.instagram import download_instagram_reel
 from downloader.song import download_song
 from downloader.youtube import download_youtube_video
-from handlers.check_membership import check_membership
+from handlers.membership import check_membership
 from utils.acrcloud import recognize_song
 from utils.send_file import sendsong
 from utils.audio_preprocessing import convert_video_to_mp3, trim_audio
 from utils.cleardata import delete_cache, delete_file, delete_all
+from database.db_manager import DBManager
+
+# Initialize the database manager
+db = DBManager()
 
 # Handle user messages
 async def handle_message(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    user_name = update.message.from_user.full_name
+
+    if not db.user_exists(user_id):
+        db.add_user(user_id, user_name)
+        
     downloading_message = None
 
     user_id = update.message.from_user.id
@@ -71,7 +81,11 @@ async def handle_message(update: Update, context: CallbackContext):
     try:
         # URL input
         if update.message.text:
+            user_id = update.message.from_user.id
             url = update.message.text
+
+            db.log_input(user_id, url)
+            
             if re.match(r"^https?://(www\.)?instagram\.com/.*$", url):
                 downloading_message = await update.message.reply_text(
                     "<b>⬇️ Fetching Instagram Reel...</b> <i>Hang tight! 🚀</i>",

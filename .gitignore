@@ -2,4 +2,5 @@
 __pycache__
 data
 .env
-edit_text.txt
+database/song_recognition_bot.db
+database/test_db_manager.py

@@ -1,8 +1,15 @@
 import os
 import logging
+from flask import Flask
+from threading import Thread
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
-from handlers.command import start_command, help_command, search_command, delete_command
+from config import BOT_TOKEN
 from handlers.message import handle_message
+from handlers.commands.user import start_command, help_command, history_command
+from handlers.commands.search import search_command
+from handlers.commands.broadcast import broadcast_command
+from handlers.commands.user_info import getinfo_command, getusers_command
+from handlers.commands.delete import deluser_command, delfiles_command
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -31,7 +38,12 @@ def main():
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("search", search_command))
-    application.add_handler(CommandHandler("delete", delete_command))
+    application.add_handler(CommandHandler("deluser", deluser_command))
+    application.add_handler(CommandHandler("broadcast", broadcast_command))
+    application.add_handler(CommandHandler("getinfo", getinfo_command))
+    application.add_handler(CommandHandler("getusers", getusers_command))
+    application.add_handler(CommandHandler("history", history_command))
+    application.add_handler(CommandHandler("delfiles", delfiles_command))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(MessageHandler(filters.VIDEO | filters.AUDIO | filters.VOICE, handle_message))
 
