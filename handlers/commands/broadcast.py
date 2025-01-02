@@ -35,6 +35,12 @@ async def send_media_to_user(context, user_id, message_type, media, caption=None
         return False  # Failure
 
 async def broadcast_command(update: Update, context: CallbackContext):
+    chat_type = update.message.chat.type
+
+    # Ignore messages from groups, supergroups, and channels
+    if chat_type in ["group", "supergroup", "channel"]:
+        return
+    
     user_id = update.message.from_user.id
     if int(user_id) in EXCEPTION_USER_IDS:
         if not update.message.reply_to_message and not context.args and not update.message.text:

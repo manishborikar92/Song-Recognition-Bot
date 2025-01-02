@@ -85,7 +85,8 @@ def recognize_song(audio_path):
             song = song_info["metadata"]["music"][0]
             title = song.get("title", "Unknown Title")
             artists = ", ".join(artist["name"] for artist in song.get("artists", []))
-            logging.info(f"Title: {title}\nArtists: {artists}")
+            logging.info(f"Title: {title}")
+            logging.info(f"Artists: {artists}")
         else:
             logging.error("No match found in ACRCloud database.")
             return response_data

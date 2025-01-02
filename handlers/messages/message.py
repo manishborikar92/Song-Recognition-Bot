@@ -13,7 +13,7 @@ from decorator.membership import membership_check_decorator
 from utils.acrcloud import recognize_song
 from utils.send_file import sendsong
 from utils.audio_processor import convert_video_to_mp3, trim_audio
-from utils.cleardata import delete_cache, delete_file, delete_all
+from utils.cleardata import delete_cache, delete_files, delete_all
 from database.db_manager import DBManager
 from decorator.rate_limiter import RateLimiter
 
@@ -264,7 +264,7 @@ async def handle_message(update: Update, context: CallbackContext):
 
         # If there are any valid paths, delete the files
         if paths_to_delete:
-            delete_file(*paths_to_delete)  # Unpack the list of paths into the function
+            delete_files(*paths_to_delete)  # Unpack the list of paths into the function
 
         # Always delete the cache
         delete_cache()

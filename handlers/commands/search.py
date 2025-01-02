@@ -6,7 +6,7 @@ from config import EXCEPTION_USER_IDS, DEVELOPERS
 from downloader.song import download_song
 from utils.acrcloud import get_song_info
 from utils.send_file import sendsong
-from utils.cleardata import delete_cache, delete_file
+from utils.cleardata import delete_cache, delete_files
 from database.db_manager import DBManager
 from decorator.rate_limiter import RateLimiter
 from decorator.membership import membership_check_decorator
@@ -96,6 +96,6 @@ async def search_command(update: Update, context: CallbackContext):
     finally:
         try:
             delete_cache()
-            delete_file(song_path)
+            delete_files(song_path)
         except Exception as e:
             logging.error(f"Error deleting: {e}")

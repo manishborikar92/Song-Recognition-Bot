@@ -2,7 +2,6 @@ import os
 from telegram import Update
 from telegram.ext import CallbackContext
 from config import EXCEPTION_USER_IDS
-from utils.pdf_generator import create_pdf
 from database.db_manager import DBManager
 
 # Initialize the database manager

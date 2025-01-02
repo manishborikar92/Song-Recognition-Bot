@@ -10,7 +10,7 @@ db = DBManager()
 async def deluser_command(update: Update, context: CallbackContext):
     chat_type = update.message.chat.type
     id_del = None
-    id_del = update.message.text
+    id_del = ' '.join(context.args)
 
     # Ignore messages from groups, supergroups, and channels
     if chat_type in ["group", "supergroup", "channel"]:
@@ -19,7 +19,10 @@ async def deluser_command(update: Update, context: CallbackContext):
     user_id = update.message.from_user.id
     if int(user_id) in DEVELOPERS:
         db.delete_user_data(id_del)
-        await update.message.reply_text("✅ All user data has been deleted.")
+        if id_del:
+            await update.message.reply_text(f"✅ User data has been deleted for this {id_del} id.")
+        else:
+            await update.message.reply_text("✅ All user data has been deleted.")
     else:
         await update.message.reply_text("❌")
         await update.message.reply_text(
