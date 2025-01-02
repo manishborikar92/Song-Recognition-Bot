@@ -65,3 +65,29 @@ async def getinfo_command(update: Update, context: CallbackContext):
         os.remove(pdf_path)
     else:
         await update.message.reply_text("❌ You do not have permission to use this command.")
+
+async def history_command(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    if int(user_id) in EXCEPTION_USER_IDS:
+        history = db.get_user_history(user_id)
+        if not history:
+            await update.message.reply_text("❌ You have no history recorded.")
+            return
+
+        # Directory to save videos
+        save_dir = 'data/pdf'
+        os.makedirs(save_dir, exist_ok=True)
+
+        content = [(h[0], h[1]) for h in history]
+        headers = ["Input", "Date and Time"]
+        pdf_path = f"{save_dir}/your_history_{user_id}.pdf"
+        create_pdf(pdf_path, "Your History", headers, content)
+
+        await update.message.reply_document(
+            document=open(pdf_path, 'rb'),
+            filename=pdf_path,
+            caption="📄 Your History"
+        )
+        os.remove(pdf_path)
+    else:
+        await update.message.reply_text("❌ You do not have permission to use this command.")

@@ -55,34 +55,10 @@ async def help_command(update: Update, context: CallbackContext):
             "- <b>/help</b> - Display this help message. ❓📖\n"
             "- <b>/search</b> - Search for a song by name or artist (e.g., 'song name - artist name'). 🔍🎶\n"
             "- 📹 Share a video, audio, or voice message - The bot will recognize the song and provide details. 🎧🎵\n"
-            "- 🌐 Send a YouTube or Instagram link - The bot will download the video, analyze it, and identify the song. 🎥🎶\n"
-            "- <b>/history</b> - View your own message history. 📜\n\n"
+            "- 🌐 Send a YouTube or Instagram link - The bot will download the video, analyze it, and identify the song. 🎥🎶\n\n"
             "For support or issues, feel free to contact the developer! 😊\n"
             "<a href='https://t.me/ProjectON3'>ProjectON3</a>"
         )
         
         # Send the help text as a message to the user
         await update.message.reply_text(help_text, parse_mode="HTML")
-
-async def history_command(update: Update, context: CallbackContext):
-    user_id = update.message.from_user.id
-    history = db.get_user_history(user_id)
-    if not history:
-        await update.message.reply_text("❌ You have no history recorded.")
-        return
-
-    # Directory to save videos
-    save_dir = 'data/pdf'
-    os.makedirs(save_dir, exist_ok=True)
-
-    content = [(h[0], h[1]) for h in history]
-    headers = ["Input", "Date and Time"]
-    pdf_path = f"{save_dir}/your_history_{user_id}.pdf"
-    create_pdf(pdf_path, "Your History", headers, content)
-
-    await update.message.reply_document(
-        document=open(pdf_path, 'rb'),
-        filename=pdf_path,
-        caption="📄 Your History"
-    )
-    os.remove(pdf_path)
