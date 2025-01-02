@@ -10,19 +10,25 @@ db = DBManager()
 async def deluser_command(update: Update, context: CallbackContext):
     chat_type = update.message.chat.type
     id_del = None
-    id_del = ' '.join(context.args)
+    
+    if context.args:
+        id_del = ' '.join(context.args)
 
     # Ignore messages from groups, supergroups, and channels
     if chat_type in ["group", "supergroup", "channel"]:
         return
     
     user_id = update.message.from_user.id
+    
     if int(user_id) in DEVELOPERS:
-        db.delete_user_data(id_del)
         if id_del:
-            await update.message.reply_text(f"✅ User data has been deleted for this {id_del} id.")
+            # Deleting specific user's data
+            db.delete_user_data(id_del)
+            await update.message.reply_text(f"✅ User data has been deleted for {id_del}.")
         else:
-            await update.message.reply_text("✅ All user data has been deleted.")
+            # # Deleting all user data
+            # db.delete_user_data()  # Assuming this deletes all data when no ID is provided
+            await update.message.reply_text("❌ Please provide a user ID.")
     else:
         await update.message.reply_text("❌")
         await update.message.reply_text(

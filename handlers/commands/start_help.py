@@ -52,7 +52,7 @@ async def help_command(update: Update, context: CallbackContext):
             "- <b>/broadcast</b> - Send a message to all users (Admin only). 📢\n"
             "- <b>/getusers</b> - Retrieve all user IDs and names (Admin only). 🧾\n"
             "- <b>/getinfo</b> - Fetch user history (Developer only). 📄\n"
-            "- <b>/deluser</b> - Clear specific or all user data (Developer only). 🗑\n"
+            "- <b>/deluser</b> - Clear specific user data (Developer only). 🗑\n"
             "- <b>/delfiles</b> - Clear all media files and cache. (Developer only). 📁🗑\n\n"
             "<a href='https://t.me/ProjectON3'>ProjectON3</a>"
         )
