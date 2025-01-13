@@ -24,6 +24,11 @@ def membership_check_decorator():
         @wraps(func)
         async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
             user_id = update.message.from_user.id
+            chat_type = update.message.chat.type
+            # Ignore messages from groups, supergroups, and channels
+            if chat_type in ["group", "supergroup", "channel"]:
+                return
+                
 
             try:
                 is_member = await check_membership(user_id, BOT_TOKEN)  # Use BOT_TOKEN from config

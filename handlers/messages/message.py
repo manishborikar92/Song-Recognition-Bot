@@ -31,9 +31,9 @@ async def handle_message(update: Update, context: CallbackContext):
     user_name = update.message.from_user.full_name
     chat_type = update.message.chat.type
 
-    # Ignore messages from groups, supergroups, and channels
-    if chat_type in ["group", "supergroup", "channel"]:
-        return
+    # # Ignore messages from groups, supergroups, and channels
+    # if chat_type in ["group", "supergroup", "channel"]:
+    #     return
 
     if not db.user_exists(user_id):
         db.add_user(user_id, user_name)
