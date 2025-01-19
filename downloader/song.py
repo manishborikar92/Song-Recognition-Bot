@@ -32,7 +32,7 @@ def download_song(title, artist):
         # Construct the search query
         query = f"{title} {artist} audio"
 
-        # Configure yt-dlp options for faster downloads
+        # Configure yt-dlp options for OAuth authentication and download
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
@@ -44,7 +44,8 @@ def download_song(title, artist):
             'quiet': True,  # Reduce console output
             'noplaylist': True,
             'extractaudio': True,  # Avoid downloading video
-            'cookiefile': 'cookies.txt',
+            'oauthfile': 'oauth.json',  # Path to OAuth credentials
+            'cookiefile': None,  # Set if you don't want OAuth
         }
 
         # Download the song
@@ -57,8 +58,9 @@ def download_song(title, artist):
 
         # Add artist name as tag using eyed3
         audiofile = eyed3.load(file_path)
-        audiofile.tag.artist = artist  # Set artist tag
-        audiofile.tag.save()  # Save changes
+        if audiofile and audiofile.tag:
+            audiofile.tag.artist = artist  # Set artist tag
+            audiofile.tag.save()  # Save changes
 
         # Test if the file can be opened
         with open(file_path, "rb") as song_file:
@@ -66,7 +68,7 @@ def download_song(title, artist):
 
         logging.info('Song Downloaded')
         return file_path
-    
+
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None
