@@ -255,10 +255,6 @@ async def handle_message(update: Update, context: CallbackContext):
             await sendsong(update, downloading_message, response_message, youtube_link, spotify_link, song_path)
         else:
             await update.message.reply_text(
-                "🚫 <b>Song file not found.</b> I found the song but couldn't fetch the file 🥲",
-                parse_mode='HTML'
-            )
-            await update.message.reply_text(
                     text=(  # Error message when the file exceeds the limit
                         "🚫 <b>Song file not found.</b> I found the song but couldn't fetch the file 🥲\n\n"
                         "But no worries, here’s all the details and the play buttons! 🎧🎶\n\n" + response_message
