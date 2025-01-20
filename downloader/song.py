@@ -41,10 +41,11 @@ def download_song(title, artist):
                 'preferredquality': '192',
             }],
             'outtmpl': os.path.join(output_dir, f'{sanitized_title}.%(ext)s'),
-            'quiet': False,  # Reduce console output
+            'quiet': False,
             'noplaylist': True,
-            'extractaudio': True,  # Avoid downloading video
-            'oauthfile': 'oauth.json',  # Path to OAuth credentials
+            'extractaudio': True,
+            'oauthfile': 'oauth.json',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',  # Mimic a browser
             'cookiefile': None,  # Set if you don't want OAuth
         }
 
@@ -72,5 +73,3 @@ def download_song(title, artist):
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None
-    
-download_song("Same Old Love", "selena gomez")
