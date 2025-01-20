@@ -1,6 +1,5 @@
 #!/bin/bash
 # Define video URL and cookies file path
-VIDEO_URL=$1
 COOKIES_FILE="cookies.txt"
 VIDEO_URL="https://youtu.be/9h30Bx4Klxg?si=4xmcvK97iBYCyoOs"
 
