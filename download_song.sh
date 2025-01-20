@@ -10,5 +10,5 @@ if [ ! -f "$COOKIES_FILE" ]; then
   exit 1
 fi
 
-# Run yt-dlp with the cookies file to download the song
-yt-dlp --cookies "$COOKIES_FILE" "$VIDEO_URL"
+# Run yt-dlp to simulate the download (this updates cookies but doesn't actually download the video)
+yt-dlp --cookies "$COOKIES_FILE" --simulate "$VIDEO_URL"
