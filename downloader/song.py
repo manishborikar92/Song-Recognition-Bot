@@ -41,7 +41,7 @@ def download_song(title, artist):
                 'preferredquality': '192',
             }],
             'outtmpl': os.path.join(output_dir, f'{sanitized_title}.%(ext)s'),
-            'quiet': True,  # Reduce console output
+            'quiet': False,  # Reduce console output
             'noplaylist': True,
             'extractaudio': True,  # Avoid downloading video
             'oauthfile': 'oauth.json',  # Path to OAuth credentials
@@ -72,3 +72,5 @@ def download_song(title, artist):
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None
+    
+download_song("Same Old Love", "selena gomez")

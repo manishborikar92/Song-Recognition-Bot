@@ -5,3 +5,4 @@ data
 database/song_recognition_bot.db
 database/test_db_manager.py
 oauth.json
+client_secrets.json
