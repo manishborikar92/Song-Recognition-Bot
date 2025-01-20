@@ -46,7 +46,7 @@ def download_song(title, artist):
             'extractaudio': True,
             'oauthfile': 'oauth.json',
             'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',  # Mimic a browser
-            'cookiefile': None,  # Set if you don't want OAuth
+            'cookiefile': 'cookies.txt',  # Set if you don't want OAuth
         }
 
         # Download the song

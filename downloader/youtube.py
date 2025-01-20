@@ -33,7 +33,9 @@ def download_youtube_video(url, max_filesize_mb=100):
                 {'key': 'FFmpegMetadata'}
             ],
             'writethumbnail': True,
-            'cookiefile': 'cookies.txt',
+            'oauthfile': 'oauth.json',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',  # Mimic a browser
+            'cookiefile': 'cookies.txt',  # Set if you don't want OAuth
         }
 
         with YoutubeDL(ydl_opts) as ydl:
