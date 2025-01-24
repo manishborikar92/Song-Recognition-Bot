@@ -1,0 +1,32 @@
+2025-01-24 21:01:39,429 - INFO - Bot is running...
+2025-01-24 21:01:51,432 - ERROR - Download failed: No media found for the given query
+2025-01-24 21:01:51,433 - ERROR - Error processing message: cannot unpack non-iterable NoneType object
+2025-01-24 21:01:51,434 - INFO - Contents of 'database/__pycache__' deleted successfully.
+2025-01-24 21:01:51,435 - INFO - Contents of 'decorator/__pycache__' deleted successfully.
+2025-01-24 21:01:51,438 - INFO - Contents of 'downloader/__pycache__' deleted successfully.
+2025-01-24 21:01:51,438 - INFO - Folder 'handlers/__pycache__' is already empty.
+2025-01-24 21:01:51,441 - INFO - Contents of 'handlers/commands/__pycache__' deleted successfully.
+2025-01-24 21:01:51,443 - INFO - Contents of 'handlers/messages/__pycache__' deleted successfully.
+2025-01-24 21:01:51,449 - INFO - Contents of 'utils/__pycache__' deleted successfully.
+2025-01-24 21:01:51,453 - INFO - Contents of '__pycache__' deleted successfully.
+2025-01-24 21:01:51,453 - INFO - Cache deleted successfully.
+2025-01-24 21:02:16,393 - ERROR - Download failed: No media found for the given query
+2025-01-24 21:02:16,394 - ERROR - Error processing message: cannot unpack non-iterable NoneType object
+2025-01-24 21:02:16,396 - INFO - Folder 'database/__pycache__' is already empty.
+2025-01-24 21:02:16,397 - INFO - Folder 'decorator/__pycache__' is already empty.
+2025-01-24 21:02:16,398 - INFO - Folder 'downloader/__pycache__' is already empty.
+2025-01-24 21:02:16,399 - INFO - Folder 'handlers/__pycache__' is already empty.
+2025-01-24 21:02:16,400 - INFO - Folder 'handlers/commands/__pycache__' is already empty.
+2025-01-24 21:02:16,401 - INFO - Folder 'handlers/messages/__pycache__' is already empty.
+2025-01-24 21:02:16,402 - INFO - Folder 'utils/__pycache__' is already empty.
+2025-01-24 21:02:16,404 - INFO - Folder '__pycache__' is already empty.
+2025-01-24 21:02:16,405 - INFO - Cache deleted successfully.
+2025-01-24 21:04:22,013 - WARNING - Attempt 1 failed: [0;31mERROR:[0m [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+2025-01-24 21:04:23,481 - WARNING - Attempt 2 failed: [0;31mERROR:[0m [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+2025-01-24 21:04:24,890 - WARNING - Attempt 3 failed: [0;31mERROR:[0m [youtube] hHuG7FIKgtc: Requested format is not available. Use --list-formats for a list of available formats
+2025-01-24 21:04:24,891 - ERROR - All download attempts failed
+2025-01-24 21:04:30,225 - INFO - Bot is running...
+2025-01-24 21:05:49,527 - INFO - Available formats: ['sb3', 'sb2', 'sb1', 'sb0', '249', '250', '140', '251', '160', '278', '394', '133', '242', '395', '134', '18', '243', '396', '135', '244', '397', '136', '247', '398', '137', '248', '399']
+2025-01-24 21:06:47,715 - INFO - Successfully downloaded: downloads\hHuG7FIKgtc.mp4
+2025-01-24 21:07:35,137 - INFO - Available formats: ['sb3', 'sb2', 'sb1', 'sb0', '249', '250', '140', '251', '160', '278', '394', '133', '242', '395', '134', '18', '243', '396', '135', '244', '397', '136', '247', '398', '137', '248', '399']
+2025-01-24 21:08:26,876 - INFO - Successfully downloaded: downloads\hHuG7FIKgtc.mp4
