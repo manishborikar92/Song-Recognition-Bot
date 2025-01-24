@@ -8,7 +8,7 @@ def get_first_sentence(caption: str) -> str:
 
 def download_youtube_video(url, max_filesize_mb=100):
     """
-    Downloads YouTube video at 360p with optimized performance and metadata handling.
+    Downloads YouTube video with robust format handling and PO token workaround.
     
     Args:
         url (str): YouTube video URL
@@ -22,25 +22,46 @@ def download_youtube_video(url, max_filesize_mb=100):
         os.makedirs(save_dir, exist_ok=True)
 
         ydl_opts = {
-            'format': 'bestvideo[height<=360][ext=mp4]+bestaudio/best[height<=360][ext=mp4]',
+            'format': 'bestvideo[height<=360]+bestaudio/best',
             'outtmpl': f"{save_dir}/%(id)s.%(ext)s",
-            'noplaylist': True,
-            'merge_output_format': 'mp4',
+            'http_headers': {
+                'Accept': '*/*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://www.youtube.com/',
+            },
+            'compat_opts': ['youtube-unavailable-videos'],
+            'throttled_rate': '1M',
+            'force_ip': '4',
+            'concurrent_fragment_downloads': 8,
+            'retries': 15,
+            'fragment_retries': 25,
+            'skip_unavailable_fragments': True,
+            'nocheckcertificate': True,
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+            'extractor_args': {
+                'youtube': {
+                    'player_client': 'web',
+                    'skip': ['hls', 'dash'],
+                }
+            },
             'postprocessors': [
+                {
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                    'when': 'post_process'
+                },
+                {
+                    'key': 'FFmpegVideoRemuxer',
+                    'preferedformat': 'mp4',
+                },
                 {'key': 'EmbedThumbnail'},
                 {'key': 'FFmpegMetadata'}
             ],
-            'writethumbnail': True,
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'concurrent_fragment_downloads': 5,
-            'socket_timeout': 10,
-            'nocheckcertificate': True,
-            'noprogress': True,
-            'retries': 3,
+            'format_sort': ['res:360', 'ext:mp4', 'vcodec:h264'],
+            'check_formats': 'selected',
         }
 
         with YoutubeDL(ydl_opts) as ydl:
-            # Single info extraction with metadata
             info_dict = ydl.extract_info(url, download=False)
             video_id = info_dict['id']
             video_path = os.path.join(save_dir, f"{video_id}.mp4")
@@ -49,20 +70,29 @@ def download_youtube_video(url, max_filesize_mb=100):
                 logging.info(f"Video exists: {video_path}")
                 return video_path, "Video exists"
 
-            # Get description early
+            # Check for any available formats
+            if not info_dict.get('formats'):
+                logging.warning("No downloadable formats available")
+                return None, "no formats"
+
             caption = info_dict.get('description', '')
             first_sentence = get_first_sentence(caption)
 
-            # Size check before download
             filesize = info_dict.get('filesize') or info_dict.get('filesize_approx', 0)
             if filesize > max_filesize_mb * 1024 * 1024:
                 logging.warning(f"Video exceeds {max_filesize_mb}MB")
                 return None, "size exceeds"
 
-            # Download using cached info_dict
-            ydl.process_ie_result(info_dict, download=True)
+            ydl.download([url])
 
-        logging.info("Download successful")
+            # Handle possible different extensions
+            temp_path = ydl.prepare_filename(info_dict)
+            if os.path.exists(temp_path):
+                if not temp_path.endswith('.mp4'):
+                    os.rename(temp_path, video_path)
+            elif not os.path.exists(video_path):
+                raise FileNotFoundError("Downloaded file not found")
+
         return video_path, first_sentence
 
     except Exception as e:
