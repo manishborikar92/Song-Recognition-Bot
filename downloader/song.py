@@ -1,40 +1,36 @@
 import os
 import re
-import eyed3
 import logging
+from mutagen.easyid3 import EasyID3
+from mutagen import MutagenError
+from mutagen.id3 import ID3NoHeaderError
 from yt_dlp import YoutubeDL
 
 def download_song(title, artist):
     """
-    Downloads a song as an MP3 based on the title and artist and tags it with artist info.
+    Downloads a song as MP3 based on title and artist with optimized performance,
+    and tags it with metadata using mutagen.
 
     Args:
-        title (str): The title of the song.
-        artist (str): The artist of the song.
+        title (str): Song title
+        artist (str): Song artist
 
     Returns:
-        str: The file path of the downloaded MP3.
+        str: File path of downloaded MP3 or None if failed
     """
     try:
-        # Ensure the output directory exists
         output_dir = "data/music"
         os.makedirs(output_dir, exist_ok=True)
 
-        # Generate a sanitized filename (avoid invalid characters for different OS)
         sanitized_title = re.sub(r'[^a-zA-Z0-9 ()\-.,]', '', title)
         file_path = os.path.join(output_dir, f"{sanitized_title}.mp3")
 
-        # If the song already exists, return the file path
         if os.path.exists(file_path):
             logging.info(f"Song already exists: {file_path}")
             return file_path
 
-        # Construct the search query
-        query = f"{title} {artist} audio"
-
-        # Configure yt-dlp options for OAuth authentication and download
         ydl_opts = {
-            'format': 'bestaudio/best',
+            'format': 'bestaudio',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -43,33 +39,33 @@ def download_song(title, artist):
             'outtmpl': os.path.join(output_dir, f'{sanitized_title}.%(ext)s'),
             'quiet': False,
             'noplaylist': True,
-            'extractaudio': True,
-            'oauthfile': 'oauth.json',
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',  # Mimic a browser
-            'cookiefile': 'cookies.txt',  # Set if you don't want OAuth
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'concurrent_fragment_downloads': 5,  # Parallel downloads for DASH
+            'socket_timeout': 10,  # Faster timeout
+            'nocheckcertificate': True,  # Bypass SSL verification for speed
         }
 
-        # Download the song
         with YoutubeDL(ydl_opts) as ydl:
-            result = ydl.extract_info(f"ytsearch:{query}", download=True)
+            ydl.download([f"ytsearch:{title} {artist} audio"])
 
-        # Ensure the file exists and is not corrupt
         if not os.path.isfile(file_path):
-            raise FileNotFoundError("The MP3 file was not downloaded correctly.")
+            raise FileNotFoundError("MP3 file not downloaded correctly")
 
-        # Add artist name as tag using eyed3
-        audiofile = eyed3.load(file_path)
-        if audiofile and audiofile.tag:
-            audiofile.tag.artist = artist  # Set artist tag
-            audiofile.tag.save()  # Save changes
+        # Add metadata with mutagen
+        try:
+            audio = EasyID3(file_path)
+        except ID3NoHeaderError:
+            audio = EasyID3()
+            audio.save(file_path)
+            audio = EasyID3(file_path)
+        
+        audio['artist'] = artist
+        audio['title'] = title
+        audio.save()
 
-        # Test if the file can be opened
-        with open(file_path, "rb") as song_file:
-            song_file.read(1)  # Read the first byte to ensure the file is valid
-
-        logging.info('Song Downloaded')
+        logging.info('Song downloaded successfully')
         return file_path
 
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logging.error(f"Download failed: {e}")
         return None
