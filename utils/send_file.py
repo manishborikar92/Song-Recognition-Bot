@@ -2,8 +2,16 @@ import os
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 
-async def sendsong(update, downloading_message, response_message, youtube_link, spotify_link, song_path):
+async def sendsong(update, downloading_message, song_title, song_artist, song_album, song_release_date, youtube_link, spotify_link, song_path):
     try:
+        response_message = (
+            f"🎶 <b>Found the track: {song_title}</b>\n\n"
+            f"✨ <b>Artists:</b> {song_artist}\n"
+            f"🎧 <b>Album:</b> {song_album}\n"
+            f"📅 <b>Release Date:</b> {song_release_date}\n\n"
+            "<a href='https://t.me/ProjectON3'>ProjectON3</a>"
+        )
+
         keyboard = [
             [InlineKeyboardButton("YouTube", url=youtube_link), InlineKeyboardButton("Spotify", url=spotify_link)],
         ]

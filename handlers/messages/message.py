@@ -238,32 +238,13 @@ async def handle_message(update: Update, context: CallbackContext):
         )
         song_path = await asyncio.to_thread(download_song, title, artists)
 
-        response_message = (
-            f"🎶 <b>Found the track: {title}</b>\n\n"
-            f"✨ <b>Artists:</b> {artists}\n"
-            f"🎧 <b>Album:</b> {album}\n"
-            f"📅 <b>Release Date:</b> {release_date}\n\n"
-            "<a href='https://t.me/ProjectON3'>ProjectON3</a>"
-        )
-
-        keyboard = [
-            [InlineKeyboardButton("YouTube", url=youtube_link), InlineKeyboardButton("Spotify", url=spotify_link)],
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
         if song_path:
-            await sendsong(update, downloading_message, response_message, youtube_link, spotify_link, song_path)
+            await sendsong(update, downloading_message, title, artists, album, release_date, youtube_link, spotify_link, song_path)
         else:
-            await downloading_message.delete()
             await update.message.reply_text(
-                    text=(  # Error message when the file exceeds the limit
-                        "🚫 <b>Song file not found.</b> I found the song but couldn't fetch the file 🥲\n\n"
-                        "But no worries, here’s all the details and the play buttons! 🎧🎶\n\n" + response_message
-                    ),
-                    reply_markup=reply_markup,
-                    parse_mode='HTML',
-                    reply_to_message_id=update.message.message_id
-                )
+                "🚫 <b>Song file not found.</b> I found the song but couldn't fetch the file 🥲",
+                parse_mode='HTML'
+            )
         
     except Exception as e:
         logging.error(f"Error processing message: {e}")
