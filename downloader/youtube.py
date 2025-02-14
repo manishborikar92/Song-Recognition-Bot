@@ -33,7 +33,7 @@ def download_youtube_video(url, max_filesize_mb=100):
                 {'key': 'FFmpegMetadata'}
             ],
             'writethumbnail': True,
-            # 'cookiefile': 'cookies.txt',
+            'cookiefile': 'cookies.txt',
         }
 
         with YoutubeDL(ydl_opts) as ydl:
