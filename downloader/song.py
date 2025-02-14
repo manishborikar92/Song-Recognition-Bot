@@ -1,94 +1,72 @@
 import os
 import re
+import eyed3
 import logging
-from mutagen.easyid3 import EasyID3
-from mutagen import MutagenError
-from mutagen.id3 import ID3NoHeaderError
 from yt_dlp import YoutubeDL
 
-def download_song(title, artist, quality=192):
+def download_song(title, artist):
     """
-    Enhanced audio downloader with PO token workaround and better format handling.
-    
+    Downloads a song as an MP3 based on the title and artist and tags it with artist info.
+
     Args:
-        title (str): Song title
-        artist (str): Song artist
-        quality (int): Audio quality (96-320 kbps)
+        title (str): The title of the song.
+        artist (str): The artist of the song.
 
     Returns:
-        str: Path to downloaded MP3 or None
+        str: The file path of the downloaded MP3.
     """
     try:
+        # Ensure the output directory exists
         output_dir = "data/music"
         os.makedirs(output_dir, exist_ok=True)
-        sanitized_title = re.sub(r'[^\w\s()-.,]', '', title)[:100].strip()
+
+        # Generate a sanitized filename (avoid invalid characters for different OS)
+        sanitized_title = re.sub(r'[^a-zA-Z0-9 ()\-.,]', '', title)
         file_path = os.path.join(output_dir, f"{sanitized_title}.mp3")
 
+        # If the song already exists, return the file path
         if os.path.exists(file_path):
-            logging.info(f"Song exists: {file_path}")
+            logging.info(f"Song already exists: {file_path}")
             return file_path
 
+        # Construct the search query
+        query = f"{title} {artist} audio"
+
+        # Configure yt-dlp options for faster downloads
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': os.path.join(output_dir, f'{sanitized_title}.%(ext)s'),
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': str(quality),
+                'preferredquality': '192',
             }],
-            'http_headers': {
-                'Accept': '*/*',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Referer': 'https://www.youtube.com/',
-            },
-            'force_ip': '4',
-            'concurrent_fragment_downloads': 8,
-            'retries': 10,
-            'fragment_retries': 15,
-            'skip_unavailable_fragments': True,
-            'nocheckcertificate': True,
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-            'extractor_args': {
-                'youtube': {
-                    'player_client': 'web',
-                    'skip': ['hls', 'dash'],
-                }
-            },
-            'format_sort': ['ext', 'acodec:mp3'],
-            'check_formats': 'selected',
+            'outtmpl': os.path.join(output_dir, f'{sanitized_title}.%(ext)s'),
+            'quiet': True,  # Reduce console output
+            'noplaylist': True,
+            'extractaudio': True,  # Avoid downloading video
+            # 'cookiefile': 'cookies.txt',
         }
 
+        # Download the song
         with YoutubeDL(ydl_opts) as ydl:
-            result = ydl.extract_info(f"ytsearch:{title} {artist}", download=False)
-            if not result or 'entries' not in result:
-                raise ValueError("No search results found")
-            
-            # Verify audio formats are available
-            entry = result['entries'][0]
-            if not entry.get('formats'):
-                raise ValueError("No downloadable formats available")
+            result = ydl.extract_info(f"ytsearch:{query}", download=True)
 
-            ydl.download([f"ytsearch:{title} {artist}"])
+        # Ensure the file exists and is not corrupt
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError("The MP3 file was not downloaded correctly.")
 
-        # Handle possible different extensions
-        temp_path = ydl.prepare_filename(entry).replace('.webm', '.mp3')
-        if os.path.exists(temp_path) and temp_path != file_path:
-            os.rename(temp_path, file_path)
+        # Add artist name as tag using eyed3
+        audiofile = eyed3.load(file_path)
+        audiofile.tag.artist = artist  # Set artist tag
+        audiofile.tag.save()  # Save changes
 
-        # Metadata handling
-        try:
-            audio = EasyID3(file_path)
-        except ID3NoHeaderError:
-            audio = EasyID3()
-            audio.save(file_path)
-            audio = EasyID3(file_path)
-        
-        audio['artist'] = artist
-        audio['title'] = title
-        audio.save()
+        # Test if the file can be opened
+        with open(file_path, "rb") as song_file:
+            song_file.read(1)  # Read the first byte to ensure the file is valid
 
+        logging.info('Song Downloaded')
         return file_path
-
+    
     except Exception as e:
-        logging.error(f"Download failed: {e}")
+        logging.error(f"An error occurred: {e}")
         return None
